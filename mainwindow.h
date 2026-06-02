@@ -3,21 +3,21 @@
 
 #include <QMainWindow>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
+// Forward declarations: dizemos ao compilador que estas classes existem
+class MenuWidget;
+class SelecaoNivelWidget;
+class GameWidget;
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
-
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private:
-    Ui::MainWindow *ui;
+public slots:
+    void mostrarMenuInicial();      // Mostra o ecrã inicial ("JOGAR" e "SAIR")
+    void mostrarSelecaoNivel();     // Mostra a grelha com os níveis (1 a 6)
+    void iniciarNivel(int nivelId); // Abre o tabuleiro do jogo e carrega o nível escolhido
 };
+
 #endif // MAINWINDOW_H
