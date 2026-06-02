@@ -254,7 +254,7 @@ void GameWidget::mostrarPainelGameOver() {
 }
 
 void GameWidget::reiniciarNivel() {
-
+    carregarNivel(m_nivelAtual);
 }
 
 void GameWidget::realizarUndo() {
