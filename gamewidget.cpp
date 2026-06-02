@@ -306,7 +306,33 @@ void GameWidget::reiniciarNivel() {
 }
 
 void GameWidget::realizarUndo() {
+    // Se não há movimentos para desfazer, ignorar
+    if (m_historicoUndo.isEmpty()) return;
 
+    // Recupera o último veículo de forma segura
+    QPointer<BusItem> bus = m_historicoUndo.takeLast();
+
+    // Se o veículo for nulo (porque encheu, foi apagado e desapareceu do ecrã), cancelamos o Undo
+    if (!bus) {
+        return;
+    }
+
+    // 1. Remover o autocarro do slot de estacionamento superior
+    m_parkingArea->removerBus(bus.data());
+
+    // 2. Cuspir os passageiros de volta para a fila
+    for (int i = 0; i < bus->passageirosApanhadosNoSlot; ++i) {
+        m_passengerQueue->recriarNoInicio(bus->colorName()); // <-- Delega ao gestor
+        bus->removePassenger();
+    }
+    bus->passageirosApanhadosNoSlot = 0;
+
+    // 3. Reorganizar visualmente toda a fila de passageiros para trás
+    m_passengerQueue->atualizarPosicoesVisuais();
+
+    // 4. Teletransportar o autocarro de volta à sua garagem original
+    bus->setPos(bus->posicaoOriginal);
+    bus->resetarEstadoGrelha();
 }
 
 void GameWidget::mostrarHint() {
