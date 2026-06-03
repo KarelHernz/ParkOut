@@ -45,12 +45,3 @@ void ParkingArea::removerBus(BusItem* bus) {
         m_slots[index] = nullptr;
     }
 }
-
-gamewidget.cpp
-Dentro de "void GameWidget::onBusExitedParking(BusItem *bus)"
-    if (m_parkingArea->tentarEstacionar(bus)) {
-        m_historicoUndo.append(bus);
-        processarFila();
-    } else {
-        m_panelGameOver->show();
-    }

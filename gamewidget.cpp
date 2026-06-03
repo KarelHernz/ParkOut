@@ -36,6 +36,20 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent), m_nivelAtual(1) {
     configurarBarraSuperior(mainLayout);
     configurarCena(mainLayout);
     configurarPaineisFinais();
+
+    m_passengerQueue = new PassengerQueue(m_scene, this);
+    m_parkingArea = new ParkingArea(m_scene, this);
+
+    //Motor de animação
+    QTimer *gameTimer = new QTimer(this);
+    connect(gameTimer, &QTimer::timeout, this, [this]() {
+        for (BusItem *bus : m_veiculosAtivos) {
+            if (bus) {
+                bus->advanceStep();
+            }
+        }
+    });
+    gameTimer->start(GameConfig::FRAME_RATE_MS);
 }
 
 void GameWidget::configurarBarraSuperior(QVBoxLayout *mainLayout) {
@@ -60,6 +74,10 @@ void GameWidget::configurarBarraSuperior(QVBoxLayout *mainLayout) {
     btnAutoSolve = new QPushButton("AUTO-SOLVE", this);
     btnAutoSolve->setFixedSize(120, 40);
     btnAutoSolve->setStyleSheet("background-color: #E67E22; color: white; font-weight: bold; border-radius: 10px;");
+
+    m_lblCronometro = new QLabel("⏱️ 00:00 |🏆 Recorde: --:--", this);
+    m_lblCronometro->setStyleSheet("font-size: 16px; font-weight: bold; color: #FFFFFF; padding: 10px;");
+    m_lblCronometro->setAlignment(Qt::AlignCenter);
 
     // Adiciona os botões ao Layout de topo
     topBarLayout->addWidget(btnVoltar);
@@ -283,15 +301,75 @@ void GameWidget::construirNivel(int nivelId) {
 }
 
 void GameWidget::adicionarVeiculo(int id, const QString &cor, int capacidade, int tamanho, Direction dir, int col, int linha) {
+    int topoGrelhaY = 210; // A altura onde a grelha de jogo começa
+    int tamanhoCelula = 80;
 
+    //Cria o autocarro
+    BusItem *bus = new BusItem(id, cor, capacidade, tamanhoCelula, tamanho, dir);
+    m_veiculosAtivos.append(bus);
+
+    //Coloca-o na coluna e linha indicadas
+    bus->setPos(col * tamanhoCelula, topoGrelhaY + (linha * tamanhoCelula));
+    bus->posicaoOriginal = bus->pos();
+    bus->direcaoOriginal = dir;
+    bus->passageirosApanhadosNoSlot = 0;
+
+    //Adiciona à cena
+    m_scene->addItem(bus);
+
+    //Liga todos os sinais automáticos
+    connect(bus, &BusItem::clicked, this, [this](BusItem *b) {
+        if (!m_parkingArea->isFull()) {
+            b->setMoving(true);
+        }
+    });
+    connect(bus, &BusItem::exitedParking, this, &GameWidget::onBusExitedParking);
 }
 
 void GameWidget::onBusExitedParking(BusItem *bus) {
-
+    if (m_parkingArea->tentarEstacionar(bus)) {
+        m_historicoUndo.append(bus);
+        processarFila();
+    } else {
+        m_panelGameOver->show();
+    }
 }
 
 void GameWidget::processarFila() {
+    if (m_passengerQueue->isEmpty()) {
+        mostrarPainelVitoria();
+        return;
+    }
 
+    QString corDaFrente = m_passengerQueue->getPrimeiraCor();
+
+    for (int i = 0; i < GameConfig::NUM_SLOTS; ++i) {
+        BusItem* bus = m_parkingArea->getBus(i);
+
+        if (bus != nullptr && bus->colorName() == corDaFrente && !bus->isFull()) {
+
+            // O gestor remove o passageiro e avança a fila automaticamente!
+            m_passengerQueue->removerPrimeiroEAvancar();
+
+            bus->addPassenger();
+            bus->passageirosApanhadosNoSlot++;
+
+            if (bus->isFull()) {
+                m_veiculosAtivos.removeOne(bus);
+                m_scene->removeItem(bus);
+                bus->deleteLater();
+                m_parkingArea->removerBus(bus);
+                QTimer::singleShot(GameConfig::DELAY_FILA_BUS_CHEIO_MS, this, &GameWidget::processarFila);
+            } else {
+                QTimer::singleShot(GameConfig::DELAY_FILA_PASSAGEIRO_MS, this, &GameWidget::processarFila);
+            }
+            return;
+        }
+    }
+
+    if (m_parkingArea->isFull()) {
+        mostrarPainelGameOver();
+    }
 }
 
 void GameWidget::mostrarPainelVitoria() {
@@ -352,5 +430,34 @@ BusItem* GameWidget::avaliarMelhorJogada() {
 }
 
 void GameWidget::verificarTempoLimite() {
+    if (m_timerNivel.elapsed() / 1000 >= m_tempoLimiteSegundos) {
 
+        m_timerVisual->stop();
+        mostrarPainelGameOver();
+    }
+}
+
+void GameWidget::atualizarTimerJogo() {
+    m_tempoDecorrido++;
+
+    int minAtual = m_tempoDecorrido / 60;
+    int segAtual = m_tempoDecorrido % 60;
+    QString tempoAtualStr = QString("%1:%2")
+                                .arg(minAtual, 2, 10, QChar('0'))
+                                .arg(segAtual, 2, 10, QChar('0'));
+
+    QString melhorTempoStr;
+    if (m_melhorTempo == 9999 || m_melhorTempo <= 0) {
+        melhorTempoStr = "--:--";
+    } else {
+        int minMelhor = m_melhorTempo / 60;
+        int segMelhor = m_melhorTempo % 60;
+        melhorTempoStr = QString("%1:%2")
+                             .arg(minMelhor, 2, 10, QChar('0'))
+                             .arg(segMelhor, 2, 10, QChar('0'));
+    }
+
+    m_lblCronometro->setText(QString("⏱️ %1 | 🏆 Recorde: %2")
+                                 .arg(tempoAtualStr)
+                                 .arg(melhorTempoStr));
 }

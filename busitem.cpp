@@ -244,29 +244,3 @@ void BusItem::setHighlighted(bool h) {
     m_isHighlighted = h;
     update(); // Força o Qt a redesenhar o autocarro com/sem a borda
 }
-
-gamewidget.cpp
-Dentro de "void GameWidget::adicionarVeiculo(int id, const QString &cor, int capacidade, int tamanho, Direction dir, int col, int linha)"
-    int topoGrelhaY = 210; // A altura onde a grelha de jogo começa
-    int tamanhoCelula = 80;
-
-    //Cria o autocarro
-    BusItem *bus = new BusItem(id, cor, capacidade, tamanhoCelula, tamanho, dir);
-    m_veiculosAtivos.append(bus);
-
-    //Coloca-o na coluna e linha indicadas
-    bus->setPos(col * tamanhoCelula, topoGrelhaY + (linha * tamanhoCelula));
-    bus->posicaoOriginal = bus->pos();
-    bus->direcaoOriginal = dir;
-    bus->passageirosApanhadosNoSlot = 0;
-
-    //Adiciona à cena
-    m_scene->addItem(bus);
-
-    //Liga todos os sinais automáticos
-    connect(bus, &BusItem::clicked, this, [this](BusItem *b) {
-        if (!m_parkingArea->isFull()) {
-            b->setMoving(true);
-        }
-    });
-    connect(bus, &BusItem::exitedParking, this, &GameWidget::onBusExitedParking);
