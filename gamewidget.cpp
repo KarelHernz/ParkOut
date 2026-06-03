@@ -373,10 +373,36 @@ void GameWidget::processarFila() {
 }
 
 void GameWidget::mostrarPainelVitoria() {
+    m_timerJogo->stop();
 
+    if (!m_usouAutoSolve) {
+        if (m_tempoDecorrido < m_melhorTempo || m_melhorTempo == 9999) {
+            //Salvaguarda o recorde usando o gestor estático
+            GamePersistence::guardarRecorde(m_nivelAtual, m_tempoDecorrido);
+        }
+
+        m_panelVitoria->move((width() - m_panelVitoria->width()) / 2,
+                             (height() - m_panelVitoria->height()) / 2);
+        m_panelVitoria->show();
+        m_panelVitoria->raise();
+
+        //Guarda o progresso usando o gestor estático
+        GamePersistence::guardarProgresso(m_nivelAtual + 1);
+    } else {
+        QMessageBox::warning(this, "Piloto Automático",
+                             "O nível foi resolvido automaticamente!\n\n"
+                             "Atenção: Como usou a ajuda do Auto-Solve, o progresso NÃO foi guardado "
+                             "e o próximo nível continua trancado.\n\n"
+                             "Tente resolver o nível sem ajuda para o desbloquear!");
+        emit reiniciarNivel();
+    }
 }
 
 void GameWidget::mostrarPainelGameOver() {
+    m_panelGameOver->move((width() - m_panelGameOver->width()) / 2,
+                          (height() - m_panelGameOver->height()) / 2);
+    m_panelGameOver->show();
+    m_panelGameOver->raise();
 }
 
 void GameWidget::reiniciarNivel() {
