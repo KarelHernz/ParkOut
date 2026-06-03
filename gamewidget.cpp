@@ -440,7 +440,20 @@ void GameWidget::realizarUndo() {
 }
 
 void GameWidget::mostrarHint() {
+     if (m_passengerQueue->isEmpty()) return;
 
+    BusItem* busIdeal = avaliarMelhorJogada();
+    if (busIdeal) {
+        // Ativa a borda brilhante
+        busIdeal->setHighlighted(true);
+
+        // Desliga a borda após 1.5 segundos
+        QTimer::singleShot(GameConfig::DURACAO_HINT_MS, this, [busIdeal]() {
+            if (busIdeal) {
+                busIdeal->setHighlighted(false);
+            }
+        });
+    }
 }
 
 void GameWidget::iniciarAutoSolve() {
@@ -452,7 +465,57 @@ void GameWidget::passoAutoSolve() {
 }
 
 BusItem* GameWidget::avaliarMelhorJogada() {
+    QList<QGraphicsItem*> todosItens = m_scene->items();
 
+    for (QGraphicsItem* item : todosItens) {
+        BusItem* bus = dynamic_cast<BusItem*>(item);
+
+        // Ignora veículos que não existam, já estejam estacionados ou a mover-se
+        if (!bus || bus->isInSlot() || bus->isMoving()) continue;
+
+        // --- CRITÉRIO 1: Cor coincide com os primeiros passageiros? ---
+        bool corCoincide = false;
+        int limiteFila = qMin(GameConfig::LIMITE_PREVISAO_FILA, m_passengerQueue->tamanho());
+
+        for (int i = 0; i < limiteFila; ++i) {
+            PassengerItem* p = m_passengerQueue->getPassenger(i);
+            if (p && p->colorName() == bus->colorName()) {
+                corCoincide = true;
+                break;
+            }
+        }
+        if (!corCoincide) continue;
+
+        // --- CRITÉRIO 2: Caminho Livre? ---
+        QRectF busRect = bus->sceneBoundingRect();
+        QRectF caminhoSaida;
+        Direction dir = bus->direction();
+
+        // Projeta o retângulo até à borda do ecrã
+        if (dir == Direction::Up)         caminhoSaida = QRectF(busRect.left(), GameConfig::TOPO_GRELHA_Y, busRect.width(), busRect.top() - GameConfig::TOPO_GRELHA_Y);
+        else if (dir == Direction::Down)  caminhoSaida = QRectF(busRect.left(), busRect.bottom(), busRect.width(), GameConfig::ALTURA_CENA - busRect.bottom());
+        else if (dir == Direction::Left)  caminhoSaida = QRectF(0, busRect.top(), busRect.left(), busRect.height());
+        else if (dir == Direction::Right) caminhoSaida = QRectF(busRect.right(), busRect.top(), GameConfig::LARGURA_CENA - busRect.right(), busRect.height());
+
+        QList<QGraphicsItem*> obstaculos = m_scene->items(caminhoSaida);
+        bool caminhoLivre = true;
+
+        for (QGraphicsItem* obs : obstaculos) {
+            BusItem* outroBus = dynamic_cast<BusItem*>(obs);
+            // Se houver outro autocarro no caminho que não esteja no parque
+            if (outroBus && outroBus != bus && !outroBus->isInSlot()) {
+                caminhoLivre = false;
+                break;
+            }
+        }
+
+        // Se passou em todos os testes, encontramos o nosso autocarro ideal!
+        if (caminhoLivre) {
+            return bus;
+        }
+    }
+
+    return nullptr;
 }
 
 void GameWidget::verificarTempoLimite() {
