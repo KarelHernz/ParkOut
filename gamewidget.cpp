@@ -208,7 +208,55 @@ void GameWidget::showEvent(QShowEvent *event) {
 }
 
 void GameWidget::carregarNivel(int nivelId) {
+    m_scene->clear();
+    m_historicoUndo.clear();
+    m_passengerQueue->limpar();
+    m_veiculosAtivos.clear();
 
+    m_usouAutoSolve = false;
+    if (m_timerAutoSolve->isActive()) {
+        m_timerAutoSolve->stop();
+    }
+
+    m_parkingArea->clear();
+
+    if (m_panelVitoria) {
+        m_panelVitoria->hide();
+    }
+    if (m_panelGameOver) {
+        m_panelGameOver->hide();
+    }
+
+    // Atualiza a variável de controlo do nível atual
+    m_nivelAtual = nivelId;
+
+    m_tempoDecorrido = 0;
+    m_melhorTempo = GamePersistence::lerMelhorTempo(m_nivelAtual);
+    m_timerJogo->start(1000);
+
+    //Zona de espera
+    QGraphicsTextItem *txtFila = m_scene->addText(QString("FILA DE ESPERA - NÍVEL %1").arg(nivelId));
+    txtFila->setDefaultTextColor(QColor("#D35400"));
+    txtFila->setFont(QFont("Arial", 10, QFont::Bold));
+    txtFila->setPos(40, GameConfig::PASSAGEIROS_Y - 20);
+
+    //Os slots de estacionamento
+    QPen penSlot(QColor("#7F8C8D"), 2, Qt::DashLine);
+    for (int i = 0; i < GameConfig::NUM_SLOTS; ++i) {
+        int slotX = GameConfig::ESPACAMENTO_SLOTS + i * (GameConfig::LARGURA_SLOT + GameConfig::ESPACAMENTO_SLOTS);
+        m_scene->addRect(slotX, GameConfig::SLOT_Y, GameConfig::LARGURA_SLOT, GameConfig::ALTURA_SLOT, penSlot, QBrush(QColor("#DFE4EA")));
+    }
+
+    //Desenha as linhas da grelha
+    QPen penGrelha(Qt::lightGray, 1, Qt::DashLine);
+    for (int y = GameConfig::TOPO_GRELHA_Y; y <= GameConfig::TOPO_GRELHA_Y + (GameConfig::NUM_LINHAS * GameConfig::TAMANHO_CELULA); y += GameConfig::TAMANHO_CELULA) {
+        m_scene->addLine(0, y, GameConfig::LARGURA_GRELHA, y, penGrelha);
+    }
+    for (int x = 0; x <= GameConfig::LARGURA_GRELHA; x += GameConfig::TAMANHO_CELULA) {
+        m_scene->addLine(x, GameConfig::TOPO_GRELHA_Y, x, GameConfig::TOPO_GRELHA_Y + (GameConfig::NUM_LINHAS * GameConfig::TAMANHO_CELULA), penGrelha);
+    }
+
+    construirNivel(nivelId);
 }
 
 void GameWidget::construirNivel(int nivelId) {
@@ -254,11 +302,37 @@ void GameWidget::mostrarPainelGameOver() {
 }
 
 void GameWidget::reiniciarNivel() {
-
+    carregarNivel(m_nivelAtual);
 }
 
 void GameWidget::realizarUndo() {
+    // Se não há movimentos para desfazer, ignorar
+    if (m_historicoUndo.isEmpty()) return;
 
+    // Recupera o último veículo de forma segura
+    QPointer<BusItem> bus = m_historicoUndo.takeLast();
+
+    // Se o veículo for nulo (porque encheu, foi apagado e desapareceu do ecrã), cancelamos o Undo
+    if (!bus) {
+        return;
+    }
+
+    // 1. Remover o autocarro do slot de estacionamento superior
+    m_parkingArea->removerBus(bus.data());
+
+    // 2. Cuspir os passageiros de volta para a fila
+    for (int i = 0; i < bus->passageirosApanhadosNoSlot; ++i) {
+        m_passengerQueue->recriarNoInicio(bus->colorName()); // <-- Delega ao gestor
+        bus->removePassenger();
+    }
+    bus->passageirosApanhadosNoSlot = 0;
+
+    // 3. Reorganizar visualmente toda a fila de passageiros para trás
+    m_passengerQueue->atualizarPosicoesVisuais();
+
+    // 4. Teletransportar o autocarro de volta à sua garagem original
+    bus->setPos(bus->posicaoOriginal);
+    bus->resetarEstadoGrelha();
 }
 
 void GameWidget::mostrarHint() {
