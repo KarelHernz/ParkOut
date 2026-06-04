@@ -19,6 +19,8 @@ qt_add_executable(CrossPlatformQtGame
     parkingarea.h parkingarea.cpp
     gameconfig.h
     passengerqueue.h passengerqueue.cpp
+    autosolveria.h autosolveria.cpp
+    estadojogo.h
 )
 
 target_link_libraries(CrossPlatformQtGame

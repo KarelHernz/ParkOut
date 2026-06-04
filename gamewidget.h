@@ -4,6 +4,8 @@
 #include "busitem.h"
 #include "parkingarea.h"
 #include "passengerqueue.h"
+#include "estadojogo.h"
+#include "autosolveria.h"
 #include <QWidget>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -24,11 +26,13 @@
 
 class BusItem;
 class PassengerItem;
+class AutoSolverIA;
 
 class GameWidget : public QWidget {
     Q_OBJECT
 public:
     explicit GameWidget(QWidget *parent = nullptr);
+    ~GameWidget();
     void carregarNivel(int nivelId);
 
 public slots:
@@ -36,9 +40,10 @@ public slots:
 
 signals:
     void voltarAoMenu();
+    void solicitarCalculoIA(EstadoJogo estado);
 
 protected:
-    // Eventos do sistema para tratar da responsividade
+    //Eventos do sistema para tratar da responsividade
     void resizeEvent(QResizeEvent *event) override;
     void showEvent(QShowEvent *event) override;
 
@@ -47,6 +52,7 @@ private slots:
     void mostrarDica();
     void iniciarAutoSolve();
     void passoAutoSolve();
+    void onJogadaIACalculada(int busId);
     void atualizarTimerJogo();
 
 private:
@@ -97,7 +103,9 @@ private:
     QString formatarTempo(int segundosTotal);
     void atualizarInterfaceTempo();
 
-    BusItem* avaliarMelhorJogada();
+    bool m_esperandoHint = false;
+    QThread* m_workerThread;
+    AutoSolverIA* m_autoSolverIA;
 
     void configurarBarraSuperior(QVBoxLayout *mainLayout);
     void configurarCena(QVBoxLayout *mainLayout);

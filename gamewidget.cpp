@@ -3,6 +3,7 @@
 #include "passengeritem.h"
 #include "gamepersistence.h"
 #include "levelloader.h"
+#include "autosolveria.h"
 #include "gameconfig.h"
 
 #include <QGraphicsRectItem>
@@ -24,11 +25,14 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QDir>
+#include <QThread>
 
+//Construtor
 GameWidget::GameWidget(QWidget *parent) : QWidget(parent), m_nivelAtual(1) {
     m_tempoDecorrido = 0;
     m_melhorTempo = 9999;
     m_usouAutoSolve = false;
+    qRegisterMetaType<EstadoJogo>("EstadoJogo");
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(10, 10, 10, 10);
@@ -40,6 +44,18 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent), m_nivelAtual(1) {
     m_passengerQueue = new PassengerQueue(m_scene, this);
     m_parkingArea = new ParkingArea(m_scene, this);
 
+    m_workerThread = new QThread(this);
+    m_autoSolverIA = new AutoSolverIA();
+
+    //Movemos o trabalhador para dentro da nova Thread
+    m_autoSolverIA->moveToThread(m_workerThread);
+    connect(this, &GameWidget::solicitarCalculoIA, m_autoSolverIA, & AutoSolverIA::calcularMelhorJogada);
+    connect(m_autoSolverIA, & AutoSolverIA::jogadaCalculada, this, &GameWidget::onJogadaIACalculada);
+
+    //Limpeza de memória quando a thread terminar
+    connect(m_workerThread, &QThread::finished, m_autoSolverIA, &QObject::deleteLater);
+    m_workerThread->start();
+
     //Motor de animação
     QTimer *gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, [this]() {
@@ -50,6 +66,14 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent), m_nivelAtual(1) {
         }
     });
     gameTimer->start(GameConfig::FRAME_RATE_MS);
+}
+
+//Destrutor
+GameWidget::~GameWidget() {
+    if (m_workerThread) {
+        m_workerThread->quit();
+        m_workerThread->wait();
+    }
 }
 
 void GameWidget::configurarBarraSuperior(QVBoxLayout *mainLayout) {
@@ -439,25 +463,66 @@ void GameWidget::realizarUndo() {
 }
 
 void GameWidget::mostrarHint() {
-     if (m_passengerQueue->isEmpty()) return;
+    if (m_passengerQueue->isEmpty()) return;
 
-    BusItem* busIdeal = avaliarMelhorJogada();
-    if (busIdeal) {
-        // Ativa a borda brilhante
-        busIdeal->setHighlighted(true);
+    // Avisamos o sistema que o próximo resultado da IA é apenas para dar uma dica
+    m_esperandoHint = true;
 
-        //Desliga a borda após x segundos
-        QTimer::singleShot(GameConfig::DURACAO_HINT_MS, this, [busIdeal]() {
-            if (busIdeal) {
-                busIdeal->setHighlighted(false);
-            }
-        });
+    // Criar os dados para a Thread (Exatamente como no Auto-Solve)
+    EstadoJogo estado;
+    estado.corDaFrenteFila = m_passengerQueue->getPrimeiraCor();
+
+    for (BusItem *bus : m_veiculosAtivos) {
+        if (!bus) continue;
+        EstadoJogo::DadosBus d;
+        d.id = bus->id();
+        d.cor = bus->colorName();
+        d.noParque = bus->isInSlot();
+        estado.autocarros.append(d);
     }
+
+    // Envia para o cérebro secundário!
+    emit solicitarCalculoIA(estado);
 }
 
 void GameWidget::iniciarAutoSolve() {
     m_usouAutoSolve = true;
     m_timerAutoSolve->start(GameConfig::INTERVALO_AUTO_SOLVE_MS);
+}
+
+void GameWidget::onJogadaIACalculada(int busId) {
+    if (busId == -1) {
+        m_esperandoHint = false; // Reset da variável de segurança
+        return;
+    }
+
+    // Procura o autocarro correspondente ao ID
+    BusItem *busAlvo = nullptr;
+    for (BusItem *bus : m_veiculosAtivos) {
+        if (bus && bus->id() == busId) {
+            busAlvo = bus;
+            break;
+        }
+    }
+
+    if (!busAlvo) return;
+
+    // Se pedimos um Hint, apenas acendemos a luz
+    if (m_esperandoHint) {
+        busAlvo->setHighlighted(true);
+        QTimer::singleShot(GameConfig::DURACAO_HINT_MS, this, [busAlvo]() {
+            if (busAlvo) {
+                busAlvo->setHighlighted(false);
+            }
+        });
+        m_esperandoHint = false; // Tarefa concluída, desligamos o modo hint
+    }
+    // Se não, é o Auto-Solve em ação, vamos movê-lo!
+    else {
+        if (m_parkingArea->vagasLivres() > 0 && !busAlvo->isMoving()) {
+            busAlvo->setMoving(true);
+        }
+    }
 }
 
 void GameWidget::passoAutoSolve() {
@@ -466,67 +531,20 @@ void GameWidget::passoAutoSolve() {
         return;
     }
 
-    BusItem* autocarroIdeal = avaliarMelhorJogada();
+    //Criar os dados para à Thread
+    EstadoJogo estado;
+    estado.corDaFrenteFila = m_passengerQueue->getPrimeiraCor();
 
-    if (autocarroIdeal) {
-        if (m_parkingArea->vagasLivres() > 0) {
-            autocarroIdeal->setMoving(true);
-        }
-    }
-}
-
-BusItem* GameWidget::avaliarMelhorJogada() {
-    QList<QGraphicsItem*> todosItens = m_scene->items();
-
-    for (QGraphicsItem* item : todosItens) {
-        BusItem* bus = dynamic_cast<BusItem*>(item);
-
-        // Ignora veículos que não existam, já estejam estacionados ou a mover-se
-        if (!bus || bus->isInSlot() || bus->isMoving()) continue;
-
-        // --- CRITÉRIO 1: Cor coincide com os primeiros passageiros? ---
-        bool corCoincide = false;
-        int limiteFila = qMin(GameConfig::LIMITE_PREVISAO_FILA, m_passengerQueue->tamanho());
-
-        for (int i = 0; i < limiteFila; ++i) {
-            PassengerItem* p = m_passengerQueue->getPassenger(i);
-            if (p && p->colorName() == bus->colorName()) {
-                corCoincide = true;
-                break;
-            }
-        }
-        if (!corCoincide) continue;
-
-        // --- CRITÉRIO 2: Caminho Livre? ---
-        QRectF busRect = bus->sceneBoundingRect();
-        QRectF caminhoSaida;
-        Direction dir = bus->direction();
-
-        // Projeta o retângulo até à borda do ecrã
-        if (dir == Direction::Up)         caminhoSaida = QRectF(busRect.left(), GameConfig::TOPO_GRELHA_Y, busRect.width(), busRect.top() - GameConfig::TOPO_GRELHA_Y);
-        else if (dir == Direction::Down)  caminhoSaida = QRectF(busRect.left(), busRect.bottom(), busRect.width(), GameConfig::ALTURA_CENA - busRect.bottom());
-        else if (dir == Direction::Left)  caminhoSaida = QRectF(0, busRect.top(), busRect.left(), busRect.height());
-        else if (dir == Direction::Right) caminhoSaida = QRectF(busRect.right(), busRect.top(), GameConfig::LARGURA_CENA - busRect.right(), busRect.height());
-
-        QList<QGraphicsItem*> obstaculos = m_scene->items(caminhoSaida);
-        bool caminhoLivre = true;
-
-        for (QGraphicsItem* obs : obstaculos) {
-            BusItem* outroBus = dynamic_cast<BusItem*>(obs);
-            // Se houver outro autocarro no caminho que não esteja no parque
-            if (outroBus && outroBus != bus && !outroBus->isInSlot()) {
-                caminhoLivre = false;
-                break;
-            }
-        }
-
-        // Se passou em todos os testes, encontramos o nosso autocarro ideal!
-        if (caminhoLivre) {
-            return bus;
-        }
+    for (BusItem *bus : m_veiculosAtivos) {
+        if (!bus) continue;
+        EstadoJogo::DadosBus d;
+        d.id = bus->id();
+        d.cor = bus->colorName();
+        d.noParque = bus->isInSlot();
+        estado.autocarros.append(d);
     }
 
-    return nullptr;
+    emit solicitarCalculoIA(estado);
 }
 
 void GameWidget::verificarTempoLimite() {
