@@ -12,4 +12,4 @@ signals:
     void jogarClicado(); // Sinal para avisar a MainWindow para mudar de ecrã
 };
 
-#endif // MENUWIDGET_H
+#endif

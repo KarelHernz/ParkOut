@@ -9,8 +9,11 @@ public:
     explicit SelecaoNivelWidget(QWidget *parent = nullptr);
 
 signals:
-    void nivelSelecionado(int nivelId); // Sinal enviado quando escolhes um nível
-    void voltarClicado();               // Sinal enviado quando clicas em "Voltar"
+    // Sinal enviado quando escolhes um nível
+    void nivelSelecionado(int nivelId); 
+
+    // Sinal enviado quando clicas em "Voltar"
+    void voltarClicado();               
 };
 
-#endif // SELECAONIVELWIDGET_H
+#endif

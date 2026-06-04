@@ -20,4 +20,4 @@ public slots:
     void iniciarNivel(int nivelId); // Abre o tabuleiro do jogo e carrega o nível escolhido
 };
 
-#endif // MAINWINDOW_H
+#endif

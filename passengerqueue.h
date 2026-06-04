@@ -31,4 +31,4 @@ private:
     QList<PassengerItem*> m_queue;
 };
 
-#endif // PASSENGERQUEUE_H
+#endif
