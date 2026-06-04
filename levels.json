@@ -1,0 +1,105 @@
+{
+  "levels": [
+    {
+      "id": 1,
+      "comentario": "Nível 1 - O azul (id 1) está livre e pode sair para cima. Fila começa com azul.",
+      "fila": [
+        "blue", "blue", "blue", "blue", "blue", "blue",
+        "red", "red", "red", "red"
+      ],
+      "veiculos": [
+        {"id": 1, "cor": "blue", "capacidade": 6, "tamanho": 2, "direcao": "Up", "coluna": 2, "linha": 3},
+        {"id": 2, "cor": "red", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 4, "linha": 5}
+      ]
+    },
+    {
+      "id": 2,
+      "comentario": "Nível 2 - O azul sai primeiro para a esquerda. Fila: Blue -> Orange -> Red.",
+      "fila": [
+        "blue", "blue", "blue", "blue", "blue", "blue",
+        "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange",
+        "red", "red", "red", "red"
+      ],
+      "veiculos": [
+        {"id": 1, "cor": "blue", "capacidade": 6, "tamanho": 2, "direcao": "Left", "coluna": 2, "linha": 2},
+        {"id": 2, "cor": "red", "capacidade": 4, "tamanho": 2, "direcao": "Up", "coluna": 5, "linha": 2},
+        {"id": 3, "cor": "orange", "capacidade": 8, "tamanho": 3, "direcao": "Right", "coluna": 3, "linha": 6}
+      ]
+    },
+    {
+      "id": 3,
+      "comentario": "Nível 3 - Ordem ideal de libertação: Blue -> Purple -> Red -> Orange.",
+      "fila": [
+        "blue", "blue", "blue", "blue",
+        "purple", "purple", "purple", "purple",
+        "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red",
+        "orange", "orange", "orange", "orange", "orange", "orange"
+      ],
+      "veiculos": [
+        {"id": 1, "cor": "blue", "capacidade": 4, "tamanho": 2, "direcao": "Down", "coluna": 2, "linha": 1},
+        {"id": 2, "cor": "red", "capacidade": 12, "tamanho": 4, "direcao": "Left", "coluna": 3, "linha": 4},
+        {"id": 3, "cor": "orange", "capacidade": 6, "tamanho": 2, "direcao": "Up", "coluna": 1, "linha": 5},
+        {"id": 4, "cor": "purple", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 4, "linha": 2}
+      ]
+    },
+    {
+      "id": 4,
+      "comentario": "Nível 4 - 5 Cores intercaladas em blocos que desafiam as 3 vagas. Ordem: Orange -> Blue -> Green -> Purple -> Red.",
+      "fila": [
+        "orange", "orange", "orange", "orange",
+        "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue",
+        "green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green",
+        "purple", "purple", "purple", "purple", "purple", "purple",
+        "red", "red", "red", "red", "red", "red"
+      ],
+      "veiculos": [
+        {"id": 1, "cor": "blue", "capacidade": 8, "tamanho": 3, "direcao": "Right", "coluna": 1, "linha": 2},
+        {"id": 2, "cor": "red", "capacidade": 6, "tamanho": 2, "direcao": "Up", "coluna": 5, "linha": 4},
+        {"id": 3, "cor": "orange", "capacidade": 4, "tamanho": 2, "direcao": "Left", "coluna": 6, "linha": 1},
+        {"id": 4, "cor": "purple", "capacidade": 6, "tamanho": 2, "direcao": "Down", "coluna": 4, "linha": 5},
+        {"id": 5, "cor": "green", "capacidade": 12, "tamanho": 4, "direcao": "Up", "coluna": 2, "linha": 4}
+      ]
+    },
+    {
+      "id": 5,
+      "comentario": "Nível 5 - Multi-veículos (dois azuis). O azul pequeno sai primeiro para encher com os passageiros iniciais. Ordem: Blue -> Orange -> Green -> Purple -> Red.",
+      "fila": [
+        "blue", "blue", "blue", "blue",
+        "orange", "orange", "orange", "orange", "orange", "orange",
+        "green", "green", "green", "green", "green", "green",
+        "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue",
+        "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple",
+        "red", "red", "red", "red", "red", "red", "red", "red"
+      ],
+      "veiculos": [
+        {"id": 1, "cor": "blue", "capacidade": 12, "tamanho": 4, "direcao": "Left", "coluna": 1, "linha": 1},
+        {"id": 2, "cor": "red", "capacidade": 8, "tamanho": 3, "direcao": "Up", "coluna": 6, "linha": 2},
+        {"id": 3, "cor": "orange", "capacidade": 6, "tamanho": 2, "direcao": "Right", "coluna": 1, "linha": 6},
+        {"id": 4, "cor": "purple", "capacidade": 12, "tamanho": 4, "direcao": "Down", "coluna": 4, "linha": 3},
+        {"id": 5, "cor": "green", "capacidade": 6, "tamanho": 2, "direcao": "Up", "coluna": 3, "linha": 3},
+        {"id": 6, "cor": "blue", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 1, "linha": 3}
+      ]
+    },
+    {
+      "id": 6,
+      "comentario": "Nível 6 - Puzzle Avançado. Mistura ligeira de cores para forçar o uso correto das 3 vagas superiores. Resolução: Blue -> Red (pequeno) -> Green -> Orange -> Purple -> Red (longo).",
+      "fila": [
+        "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue",
+        "red", "red", "red", "red",
+        "green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green",
+        "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange",
+        "purple", "purple", "purple", "purple", "purple", "purple",
+        "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red"
+      ],
+      "veiculos": [
+        {"id": 1, "cor": "red", "capacidade": 12, "tamanho": 4, "direcao": "Up", "coluna": 1, "linha": 2},
+        {"id": 2, "cor": "blue", "capacidade": 8, "tamanho": 3, "direcao": "Left", "coluna": 3, "linha": 1},
+        {"id": 3, "cor": "green", "capacidade": 8, "tamanho": 3, "direcao": "Right", "coluna": 4, "linha": 7},
+        {"id": 4, "cor": "purple", "capacidade": 6, "tamanho": 2, "direcao": "Down", "coluna": 7, "linha": 2},
+        {"id": 5, "cor": "orange", "capacidade": 12, "tamanho": 4, "direcao": "Left", "coluna": 3, "linha": 5},
+        {"id": 6, "cor": "red", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 4, "linha": 3},
+        {"id": 7, "cor": "green", "capacidade": 4, "tamanho": 2, "direcao": "Up", "coluna": 3, "linha": 3}
+      ]
+    }
+  ]
+}

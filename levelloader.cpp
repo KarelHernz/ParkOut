@@ -9,7 +9,7 @@
 LevelData LevelLoader::carregar(int nivelId) {
     LevelData data; // Cria a caixa vazia (por defeito, data.valido é falso)
 
-    QString caminhoFile = QCoreApplication::applicationDirPath() + "/levels.json";
+    QString caminhoFile = ":/levels.json";
     QFile file(caminhoFile);
 
     if (!file.open(QIODevice::ReadOnly)) {

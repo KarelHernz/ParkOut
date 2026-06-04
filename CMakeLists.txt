@@ -21,7 +21,11 @@ qt_add_executable(CrossPlatformQtGame
     passengerqueue.h passengerqueue.cpp
     autosolveria.h autosolveria.cpp
     estadojogo.h
+    Resources.qrc
 )
+
+set_target_properties(CrossPlatformQtGame PROPERTIES
+   QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
 
 qt_add_executable(Testes
     testes.cpp
@@ -33,21 +37,55 @@ qt_add_executable(Testes
     passengeritem.cpp
 )
 
+qt_add_resources(CrossPlatformQtGame "Recursos"
+    PREFIX "/"
+    FILES
+        levels.json
+        progress.json
+        recordes.json
+)
+
 target_link_libraries(CrossPlatformQtGame
     PRIVATE
-        Qt6::Core
-        Qt6::Gui
-        Qt6::Test
-        Qt6::Widgets
+        Qt::Core
+        Qt::Gui
+        Qt::Test
+        Qt::Widgets
 )
 
 target_link_libraries(Testes
     PRIVATE
-        Qt6::Core
-        Qt6::Gui
-        Qt6::Test
-        Qt6::Widgets
+        Qt::Core
+        Qt::Gui
+        Qt::Test
+        Qt::Widgets
 )
+
+if(EMSCRIPTEN)
+    target_link_options(CrossPlatformQtGame PRIVATE
+        "-s" "USE_PTHREADS=1"
+        "-s" "PTHREAD_POOL_SIZE=2"
+    )
+
+    target_link_options(Testes PRIVATE
+        "-s" "USE_PTHREADS=1"
+    )
+endif()
+
+if(ANDROID)
+    # Define a pasta onde está o teu AndroidManifest.xml
+    set_property(TARGET CrossPlatformQtGame PROPERTY
+        QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
+    )
+
+    # FORÇA O ID DA APP (Resolve o problema do nome vazio)
+    # Podes mudar para o nome que quiseres (só não pode ter espaços nem acentos)
+    set_property(TARGET CrossPlatformQtGame PROPERTY
+        QT_ANDROID_PACKAGE_NAME "com.faculdade.crossplatformqtgame"
+    )
+
+    set_property(TARGET CrossPlatformQtGame PROPERTY OUTPUT_NAME "AutocarroJogo")
+endif()
 
 include(GNUInstallDirs)
 install(TARGETS CrossPlatformQtGame

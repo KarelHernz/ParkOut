@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>levels.json</file>
+        <file>progress.json</file>
+        <file>recordes.json</file>
+    </qresource>
+</RCC>
