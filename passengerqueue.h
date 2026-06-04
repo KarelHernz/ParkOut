@@ -13,7 +13,7 @@ public:
     explicit PassengerQueue(QGraphicsScene *scene, QObject *parent = nullptr);
 
     void gerar(const QStringList &cores);
-    void limpar();
+    void clear();
 
     // Métodos de consulta (Getters)
     bool isEmpty() const;

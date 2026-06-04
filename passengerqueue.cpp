@@ -5,7 +5,7 @@ PassengerQueue::PassengerQueue(QGraphicsScene *scene, QObject *parent)
     : QObject(parent), m_scene(scene) {}
 
 void PassengerQueue::gerar(const QStringList &cores) {
-    limpar();
+    clear();
 
     for (int i = 0; i < cores.size(); ++i) {
         PassengerItem *passageiro = new PassengerItem(cores[i]);
@@ -15,7 +15,7 @@ void PassengerQueue::gerar(const QStringList &cores) {
     atualizarPosicoesVisuais();
 }
 
-void PassengerQueue::limpar() {
+void PassengerQueue::clear() {
     // Remove os itens da cena e apaga-os da memória de forma segura
     for (PassengerItem *p : m_queue) {
         if (p) {

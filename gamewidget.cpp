@@ -226,17 +226,16 @@ void GameWidget::showEvent(QShowEvent *event) {
 }
 
 void GameWidget::carregarNivel(int nivelId) {
-    m_scene->clear();
-    m_historicoUndo.clear();
-    m_passengerQueue->limpar();
-    m_veiculosAtivos.clear();
-
     m_usouAutoSolve = false;
     if (m_timerAutoSolve->isActive()) {
         m_timerAutoSolve->stop();
     }
 
+    m_historicoUndo.clear();
+    m_passengerQueue->clear();
+    m_veiculosAtivos.clear();
     m_parkingArea->clear();
+    m_scene->clear();
 
     if (m_panelVitoria) {
         m_panelVitoria->hide();
