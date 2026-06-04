@@ -24,7 +24,13 @@ qt_add_executable(CrossPlatformQtGame
 )
 
 qt_add_executable(Testes
-    tst_autosolveria.cpp autosolveria.cpp
+    testes.cpp
+    autosolveria.cpp
+    gamepersistence.cpp
+    busitem.cpp
+    parkingarea.cpp
+    passengerqueue.cpp
+    passengeritem.cpp
 )
 
 target_link_libraries(CrossPlatformQtGame
@@ -40,6 +46,7 @@ target_link_libraries(Testes
         Qt6::Core
         Qt6::Gui
         Qt6::Test
+        Qt6::Widgets
 )
 
 include(GNUInstallDirs)
