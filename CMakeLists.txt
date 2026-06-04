@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(CrossPlatformQtGame LANGUAGES CXX)
 
-find_package(Qt6 6.11 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Test)
 
 qt_standard_project_setup()
 
@@ -23,10 +23,23 @@ qt_add_executable(CrossPlatformQtGame
     estadojogo.h
 )
 
+qt_add_executable(Testes
+    tst_autosolveria.cpp autosolveria.cpp
+)
+
 target_link_libraries(CrossPlatformQtGame
     PRIVATE
-        Qt::Core
-        Qt::Widgets
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Test
+        Qt6::Widgets
+)
+
+target_link_libraries(Testes
+    PRIVATE
+        Qt6::Core
+        Qt6::Gui
+        Qt6::Test
 )
 
 include(GNUInstallDirs)
