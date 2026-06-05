@@ -7,14 +7,14 @@
 #include <QMessageBox>
 
 LevelData LevelLoader::carregar(int nivelId) {
-    LevelData data; // Cria a caixa vazia (por defeito, data.valido é falso)
+    LevelData data;
 
-    QString caminhoFile = ":/levels.json";
+    QString caminhoFile = ":/src/json/levels.json";
     QFile file(caminhoFile);
 
     if (!file.open(QIODevice::ReadOnly)) {
-        QMessageBox::critical(nullptr, "Erro de JSON", "Não foi possível encontrar o ficheiro levels.json!\n\nPor favor coloca-o na pasta:\n" + caminhoFile);
-        return data; // Retorna falso para abortar
+        QMessageBox::critical(nullptr, "Erro Crítico", "Os ficheiros do jogo estão corrompidos ou em falta. Por favor, reinstala a aplicação.");
+        return data;
     }
 
     QByteArray bytes = file.readAll();

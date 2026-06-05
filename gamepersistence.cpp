@@ -4,10 +4,26 @@
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QDir>
+#include <QDebug>
+
+//Função auxiliar interna para descobrir onde é seguro gravar no dispositivo
+QString obterCaminhoSeguro(const QString& nomeFicheiro) {
+    // Pede ao sistema operativo a pasta de dados oficial da aplicação
+    QString diretorio = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+
+    //Garante que a pasta existe
+    QDir dir;
+    if (!dir.exists(diretorio)) {
+        dir.mkpath(diretorio);
+    }
+
+    return diretorio + "/" + nomeFicheiro;
+}
 
 int GamePersistence::lerMelhorTempo(int nivelId) {
-    QString caminhoArquivo = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/recordes.json";
+    QString caminhoArquivo = obterCaminhoSeguro("recordes.json");
     QFile file(caminhoArquivo);
+
     if (file.open(QIODevice::ReadOnly)) {
         QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
         QJsonObject json = doc.object();
@@ -22,28 +38,33 @@ int GamePersistence::lerMelhorTempo(int nivelId) {
 }
 
 void GamePersistence::guardarRecorde(int nivelId, int tempo) {
-    QString caminhoPasta = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QDir().mkpath(caminhoPasta);
-    QString caminhoArquivo = caminhoPasta + "/recordes.json";
-
+    QString caminhoArquivo = obterCaminhoSeguro("recordes.json");
     QJsonObject json;
     QFile file(caminhoArquivo);
+
+    //Lê o que já lá estava para não apagar os recordes de outros níveis
     if (file.open(QIODevice::ReadOnly)) {
         json = QJsonDocument::fromJson(file.readAll()).object();
         file.close();
     }
 
+    //Atualiza ou insere o novo recorde
     json[QString("Nivel_%1").arg(nivelId)] = tempo;
 
+    //Grava tudo de volta no disco
     if (file.open(QIODevice::WriteOnly)) {
         file.write(QJsonDocument(json).toJson());
         file.close();
+    } else {
+        qWarning() << "Erro: Não foi possível gravar o recorde em" << caminhoArquivo;
     }
 }
 
 int GamePersistence::getNivelDesbloqueado() {
-    QString caminho = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/progress.json";
-    QFile file(caminho);
+    QString caminhoArquivo = obterCaminhoSeguro("progress.json");
+    QFile file(caminhoArquivo);
+
+    //Se for a primeira vez a jogar, começa no nível 1
     if (!file.exists() || !file.open(QIODevice::ReadOnly)) {
         return 1;
     }
@@ -52,16 +73,19 @@ int GamePersistence::getNivelDesbloqueado() {
 
 void GamePersistence::guardarProgresso(int nivelDesbloqueado) {
     int nivelAtualGuardado = getNivelDesbloqueado();
+
+    // Se o jogador repetir um nível antigo, não queremos baixar o progresso dele
     if (nivelDesbloqueado <= nivelAtualGuardado) return;
 
-    QString caminhoPasta = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QDir().mkpath(caminhoPasta);
-    QFile file(caminhoPasta + "/progress.json");
+    QString caminhoArquivo = obterCaminhoSeguro("progress.json");
+    QFile file(caminhoArquivo);
 
     if (file.open(QIODevice::WriteOnly)) {
         QJsonObject obj;
         obj["unlockedLevel"] = nivelDesbloqueado;
         file.write(QJsonDocument(obj).toJson());
         file.close();
+    } else {
+        qWarning() << "Erro: Não foi possível gravar o progresso em" << caminhoArquivo;
     }
 }

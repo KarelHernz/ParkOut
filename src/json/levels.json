@@ -2,7 +2,6 @@
   "levels": [
     {
       "id": 1,
-      "comentario": "Nível 1 - O azul (id 1) está livre e pode sair para cima. Fila começa com azul.",
       "fila": [
         "blue", "blue", "blue", "blue", "blue", "blue",
         "red", "red", "red", "red"
@@ -14,7 +13,6 @@
     },
     {
       "id": 2,
-      "comentario": "Nível 2 - O azul sai primeiro para a esquerda. Fila: Blue -> Orange -> Red.",
       "fila": [
         "blue", "blue", "blue", "blue", "blue", "blue",
         "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange",
@@ -28,7 +26,6 @@
     },
     {
       "id": 3,
-      "comentario": "Nível 3 - Ordem ideal de libertação: Blue -> Purple -> Red -> Orange.",
       "fila": [
         "blue", "blue", "blue", "blue",
         "purple", "purple", "purple", "purple",
@@ -44,7 +41,6 @@
     },
     {
       "id": 4,
-      "comentario": "Nível 4 - 5 Cores intercaladas em blocos que desafiam as 3 vagas. Ordem: Orange -> Blue -> Green -> Purple -> Red.",
       "fila": [
         "orange", "orange", "orange", "orange",
         "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue",
@@ -62,7 +58,6 @@
     },
     {
       "id": 5,
-      "comentario": "Nível 5 - Multi-veículos (dois azuis). O azul pequeno sai primeiro para encher com os passageiros iniciais. Ordem: Blue -> Orange -> Green -> Purple -> Red.",
       "fila": [
         "blue", "blue", "blue", "blue",
         "orange", "orange", "orange", "orange", "orange", "orange",
@@ -82,7 +77,6 @@
     },
     {
       "id": 6,
-      "comentario": "Nível 6 - Puzzle Avançado. Mistura ligeira de cores para forçar o uso correto das 3 vagas superiores. Resolução: Blue -> Red (pequeno) -> Green -> Orange -> Purple -> Red (longo).",
       "fila": [
         "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue",
         "red", "red", "red", "red",

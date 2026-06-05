@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>levels.json</file>
-        <file>progress.json</file>
-        <file>recordes.json</file>
+        <file>src/json/levels.json</file>
+        <file>src/json/progress.json</file>
+        <file>src/json/recordes.json</file>
     </qresource>
 </RCC>
