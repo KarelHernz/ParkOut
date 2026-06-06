@@ -3,9 +3,9 @@
 
 _Análise Comparativa de Algoritmos de Busca e suas Complexidades_ 
 
-**==> picture [511 x 91] intentionally omitted <==**
 
-**----- Start of picture text -----**<br>
+
+**----- 
 Documento: Relatório Técnico de Engenharia / Contexto: Estruturas de Dados e Algoritmos de<br>Ciência da Computação Inteligência Artificial<br>Variáveis: b  = fator de ramificação;  d  = Foco: Análise Assintótica de Tempo e<br>profundidade do nó objetivo Espaço (Notação Big-O)<br>**----- End of picture text -----**<br>
 
 
@@ -23,7 +23,7 @@ O BFS expande a fronteira uniformemente através dos níveis do grafo. Ele explo
 
 No pior caso, o BFS precisa de gerar e examinar todos os nós até alcançar a profundidade _**d**_ da solução ideal. Considerando um fator de ramificação médio _**b**_ (onde cada nó expande para _**b**_ novos nós), o total de nós processados segue uma progressão geométrica: 
 
-**==> picture [163 x 14] intentionally omitted <==**
+
 
 Dominado pelo termo de maior ordem, a complexidade temporal assintótica do BFS é definida como: 
 
@@ -31,7 +31,6 @@ _**O(b[d] )**_
 
 Relatório Técnico: BFS vs A* 
 
-1 
 
 ## **2.2 Complexidade de Espaço** 
 
@@ -63,7 +62,7 @@ Para garantir a otimalidade e evitar ciclos, o A* mantém registo de todos os n�
 
 Relatório Técnico: BFS vs A* 
 
-2 
+
 
 ## **4. Confronto Direto e Diferenças de Complexidade** 
 
@@ -72,8 +71,6 @@ Relatório Técnico: BFS vs A*
 |**Natureza da Busca**|Cega / Custo Uniforme por níveis.|Informada / Guiada por Heurística.|
 |**Complexidade de**<br>**Tempo**|**_O(bd)_**(Sempre exponencial).|**_O(bd)_**no pior caso; reduz drasticamente com<br>heurísticas precisas.|
 |**Complexidade de**<br>**Espaço**|**_O(bd)_**(Armazena toda a fronteira<br>ativa).|**_O(bd)_**(Retém todos os nós avaliados e na<br>fronteira).|
-|**Garantia de Caminho**<br>**Ótimo**|Sim, se o peso das arestas for<br>idêntico/unitário.|Sim, desde que a heurística seja admissível e<br>consistente.|
-|**Fator de Efciência**<br>**Prática**|Baixo. Expande radialmente de<br>forma massiva.|Alto. Reduz o espaço explorado focando na<br>direção do alvo.|
 
 
 
@@ -85,5 +82,4 @@ O BFS funciona como uma expansão esférica uniforme, sendo ineficiente para esp
 
 Relatório Técnico: BFS vs A* 
 
-3 
 
