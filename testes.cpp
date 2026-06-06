@@ -69,6 +69,38 @@ private slots:
         int tempo = GamePersistence::lerMelhorTempo(nivelNuncaJogado);
         QCOMPARE(tempo, 9999);
     }
+
+    void testEmbarqueDePassageiro() {
+        // Criamos uma cena invisível na memória RAM
+        QGraphicsScene sceneInvisivel;
+        ParkingArea parking(&sceneInvisivel, nullptr);
+        PassengerQueue queue(&sceneInvisivel, nullptr);
+
+        // Adiciona um autocarro Vermelho ao parque
+        BusItem* bus = new BusItem(1, "Red", 3, 80, 2, Direction::Right);
+        parking.tentarEstacionar(bus);
+
+        // Gera fila com Vermelho e Azul
+        QStringList coresFila = {"Red", "Blue"};
+        queue.gerar(coresFila);
+
+        // Simula a mecânica do jogo (processar fila)
+        QString corDaFrente = queue.getPrimeiraCor();
+        BusItem* busNoParque = parking.getBus(0);
+
+        bool embarcou = false;
+        if (busNoParque && busNoParque->colorName() == corDaFrente && !busNoParque->isFull()) {
+            queue.removerPrimeiroEAvancar();
+            busNoParque->addPassenger();
+            embarcou = true;
+        }
+
+        // Verifica se a física funcionou como esperado
+        QVERIFY(embarcou == true);
+        QCOMPARE(busNoParque->passengerCount(), 1);
+        QCOMPARE(queue.tamanho(), 1);
+        QCOMPARE(queue.getPrimeiraCor(), QString("Blue"));
+    }
 };
 
 QTEST_MAIN(Testes)
