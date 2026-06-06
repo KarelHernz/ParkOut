@@ -26,15 +26,15 @@ LevelData LevelLoader::carregar(int nivelId) {
         QJsonObject nivelObj = levelsArray[i].toObject();
 
         if (nivelObj["id"].toInt() == nivelId) {
-            data.valido = true; // Encontramos o nível!
+            data.valido = true;
 
-            // 1. Ler a fila
+            //Lê a fila
             QJsonArray filaArray = nivelObj["fila"].toArray();
             for (int j = 0; j < filaArray.size(); ++j) {
                 data.coresDaFila.append(filaArray[j].toString());
             }
 
-            // 2. Ler os autocarros
+            //Lê os autocarros
             QJsonArray veiculosArray = nivelObj["veiculos"].toArray();
             for (int j = 0; j < veiculosArray.size(); ++j) {
                 QJsonObject v = veiculosArray[j].toObject();
@@ -55,9 +55,8 @@ LevelData LevelLoader::carregar(int nivelId) {
 
                 data.autocarros.append(bus);
             }
-            return data; // Devolve a caixa cheia!
+            return data;
         }
     }
-
-    return data; // Se o nível não existir no JSON, devolve inválido
+    return data;
 }

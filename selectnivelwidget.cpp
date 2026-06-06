@@ -9,53 +9,62 @@ SelecaoNivelWidget::SelecaoNivelWidget(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setAlignment(Qt::AlignCenter);
 
-    // 2. Título
     QLabel *titulo = new QLabel("SELECIONAR NÍVEL", this);
     titulo->setAlignment(Qt::AlignCenter);
-    titulo->setStyleSheet("font-size: 32px; font-weight: bold; background: transparent; margin-bottom: 30px;");
+    titulo->setStyleSheet("font-size: 32px; font-weight: bold; background: transparent; margin-bottom: 30px; color: #FFFFFF;");
     mainLayout->addWidget(titulo);
 
-    // 3. Grelha de Níveis (QGridLayout permite organizar como uma tabela)
     QGridLayout *gridLayout = new QGridLayout();
     gridLayout->setSpacing(20);
 
     int maxNivel = GamePersistence::getNivelDesbloqueado();
-    // Vamos criar 6 níveis de exemplo
     for (int i = 1; i <= 6; ++i) {
-        QPushButton *btnNivel = new QPushButton(this);
-        btnNivel->setFixedSize(80, 80); // Botões quadrados
+        QPushButton *bttNivel = new QPushButton(this);
+        bttNivel->setFixedSize(70, 70);
 
+        //O nível está desbloqueado
         if (i <= maxNivel) {
-            // NÍVEL DESBLOQUEADO
-            btnNivel->setText(QString::number(i));
-            btnNivel->setStyleSheet("background-color: white; color: #2C3E50; border-radius: 15px; font-size: 28px; font-weight: bold;");
+            bttNivel->setText(QString::number(i));
+            makeStyle(bttNivel);
 
             // Só ligamos a função de clique se o nível estiver desbloqueado
-            connect(btnNivel, &QPushButton::clicked, this, [this, i]() {
+            connect(bttNivel, &QPushButton::clicked, this, [this, i]() {
                 emit nivelSelecionado(i);
             });
         } else {
-            // NÍVEL BLOQUEADO
-            btnNivel->setText("🔒\n" + QString::number(i)); // Adiciona um cadeado visualmente
-            btnNivel->setStyleSheet("background-color: #7F8C8D; color: #BDC3C7; border-radius: 15px; font-size: 16px; font-weight: bold;");
-            btnNivel->setEnabled(false); // Impede que o jogador clique à força
+            // O nível está bloqueado
+            bttNivel->setText("🔒\n" + QString::number(i)); // Adiciona um cadeado visualmente
+            bttNivel->setStyleSheet("background-color: #7F8C8D; color: #BDC3C7; border-radius: 15px; font-size: 16px; font-weight: bold;");
+            bttNivel->setEnabled(false); // Impede que o jogador clique à força
         }
 
-        // Organizar numa grelha de 3 colunas
+        //Organiza numa grelha de 3 colunas
         int linha = (i - 1) / 3;
         int coluna = (i - 1) % 3;
-        gridLayout->addWidget(btnNivel, linha, coluna);
+        gridLayout->addWidget(bttNivel, linha, coluna);
     }
 
     mainLayout->addLayout(gridLayout);
 
-    // 4. Botão de Voltar ao Menu
-    QPushButton *btnVoltar = new QPushButton("VOLTAR", this);
-    btnVoltar->setFixedSize(280, 50);
-    // Cor diferente para o botão "Voltar" (ex: um tom avermelhado ou cinza)
-    btnVoltar->setStyleSheet("color: white; border-radius: 15px; font-size: 18px; font-weight: bold; margin-top: 30px;");
-    mainLayout->addWidget(btnVoltar, 0, Qt::AlignCenter);
+    QPushButton *bttVoltar = new QPushButton("VOLTAR", this);
+    bttVoltar->setFixedSize(380, 50);
+    makeStyle(bttVoltar);
+    mainLayout->addWidget(bttVoltar, 0, Qt::AlignCenter);
 
-    // Liga o botão ao respetivo sinal
-    connect(btnVoltar, &QPushButton::clicked, this, &SelecaoNivelWidget::voltarClicado);
+    connect(bttVoltar, &QPushButton::clicked, this, &SelecaoNivelWidget::voltarClicado);
+}
+
+void SelecaoNivelWidget::makeStyle(QPushButton *btt){
+    btt->setStyleSheet("QPushButton {"
+                       "background-color: #F0F0F0;"
+                       "color: #2C3E50;"
+                       "border: 1px solid #CCCCCC;"
+                       "border-radius: 10px;"
+                       "font-weight: bold;"
+                       "font-size: 18px;"
+                       "padding: 10px 20px;""}"
+                       "QPushButton:hover {"
+                       "background-color: #D9D9D9;"
+                       "border: 1px solid #B3B3B3;""}"
+                       "QPushButton:pressed {""background-color: #BFBFBF;");
 }

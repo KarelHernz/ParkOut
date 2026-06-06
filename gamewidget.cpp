@@ -77,55 +77,72 @@ GameWidget::~GameWidget() {
 }
 
 void GameWidget::configurarBarraSuperior(QVBoxLayout *mainLayout) {
-    QHBoxLayout *topBarLayout = new QHBoxLayout();
+    //Criar um container vertical que vai segurar os dois layouts
+    QVBoxLayout *topBarContainer = new QVBoxLayout();
 
+    //Cria dois layouts horizontais
+    QHBoxLayout *linha1 = new QHBoxLayout();
+    QHBoxLayout *linha2 = new QHBoxLayout();
+
+    //Criação dos botões
     btnVoltar = new QPushButton("SAIR", this);
-    btnVoltar->setFixedSize(100, 40);
+    btnVoltar->setFixedSize(90, 40);
     btnVoltar->setStyleSheet("background-color: #E74C3C; color: white; font-weight: bold; border-radius: 10px;");
 
     btnReset = new QPushButton("RESET", this);
-    btnReset->setFixedSize(100, 40);
+    btnReset->setFixedSize(90, 40);
     btnReset->setStyleSheet("background-color: #34495E; color: white; font-weight: bold; border-radius: 10px;");
 
     btnUndo = new QPushButton("UNDO", this);
-    btnUndo->setFixedSize(100, 40);
+    btnUndo->setFixedSize(90, 40);
     btnUndo->setStyleSheet("background-color: #9B59B6; color: white; font-weight: bold; border-radius: 10px;");
 
     btnHint = new QPushButton("HINT", this);
-    btnHint->setFixedSize(100, 40);
+    btnHint->setFixedSize(90, 40);
     btnHint->setStyleSheet("background-color: #F1C40F; color: #2C3E50; font-weight: bold; border-radius: 10px;");
 
     btnAutoSolve = new QPushButton("AUTO-SOLVE", this);
-    btnAutoSolve->setFixedSize(120, 40);
+    btnAutoSolve->setFixedSize(110, 40);
     btnAutoSolve->setStyleSheet("background-color: #E67E22; color: white; font-weight: bold; border-radius: 10px;");
 
-    m_lblCronometro = new QLabel("⏱️ 00:00 |🏆 Recorde: --:--", this);
-    m_lblCronometro->setStyleSheet("font-size: 16px; font-weight: bold; color: #FFFFFF; padding: 10px;");
-    m_lblCronometro->setAlignment(Qt::AlignCenter);
+    m_lblCronometro = new QLabel("⏱00:00", this);
+    m_lblCronometro->setStyleSheet("font-size: 18px; font-weight: bold; color: #FFFFFF; padding-bottom: 2px;");
+    m_lblCronometro->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    // Adiciona os botões ao Layout de topo
-    topBarLayout->addWidget(btnVoltar);
-    topBarLayout->addWidget(btnUndo);
-    topBarLayout->addWidget(btnReset);
-    topBarLayout->addWidget(btnHint);
-    topBarLayout->addWidget(btnAutoSolve);
-    topBarLayout->addWidget(m_lblCronometro);
-    topBarLayout->addStretch();
+    m_lblRecorde = new QLabel("🏆--:--", this);
+    m_lblRecorde->setStyleSheet("font-size: 18px; font-weight: bold; color: #F1C40F; padding-top: 2px;");
+    m_lblRecorde->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
-    // Adiciona o topo à janela principal
-    mainLayout->addLayout(topBarLayout);
+    //Preenche a linha 1
+    linha1->addWidget(btnVoltar);
+    linha1->addWidget(btnReset);
+    linha1->addWidget(btnUndo);
+    linha1->addStretch();
+    linha1->addWidget(m_lblCronometro);
 
-    // Liga os botões
+    //Preenche a linha 2
+    linha2->addWidget(btnHint);
+    linha2->addWidget(btnAutoSolve);
+    linha2->addStretch();
+    linha2->addWidget(m_lblRecorde);
+
+    //Adiciona as duas linhas ao contentor do topo
+    topBarContainer->addLayout(linha1);
+    topBarContainer->addLayout(linha2);
+
+    //Adiciona o topo à janela principal
+    mainLayout->addLayout(topBarContainer);
+
+    //Liga os botões
     connect(btnVoltar, &QPushButton::clicked, this, [this]() { emit voltarAoMenu(); });
     connect(btnUndo, &QPushButton::clicked, this, &GameWidget::realizarUndo);
     connect(btnReset, &QPushButton::clicked, this, &GameWidget::reiniciarNivel);
     connect(btnHint, &QPushButton::clicked, this, &GameWidget::mostrarHint);
     connect(btnAutoSolve, &QPushButton::clicked, this, &GameWidget::iniciarAutoSolve);
 
-    // Configura os Timers
+    //Configura os Timers
     m_timerJogo = new QTimer(this);
     connect(m_timerJogo, &QTimer::timeout, this, &GameWidget::atualizarTimerJogo);
-
     m_timerAutoSolve = new QTimer(this);
     connect(m_timerAutoSolve, &QTimer::timeout, this, &GameWidget::passoAutoSolve);
 }
@@ -371,7 +388,7 @@ void GameWidget::processarFila() {
 
         if (bus != nullptr && bus->colorName() == corDaFrente && !bus->isFull()) {
 
-            // O gestor remove o passageiro e avança a fila automaticamente!
+            //O gestor remove o passageiro e avança a fila automaticamente
             m_passengerQueue->removerPrimeiroEAvancar();
 
             bus->addPassenger();
@@ -439,7 +456,7 @@ void GameWidget::realizarUndo() {
     //Recupera o último veículo de forma segura
     QPointer<BusItem> bus = m_historicoUndo.takeLast();
 
-    //Se o veículo for nulo (porque encheu, foi apagado e desapareceu do ecrã), cancelamos o Undo
+    //Se o veículo for nulo cancelamos o Undo
     if (!bus) {
         return;
     }
@@ -468,7 +485,7 @@ void GameWidget::mostrarHint() {
     // Avisamos o sistema que o próximo resultado da IA é apenas para dar uma dica
     m_esperandoHint = true;
 
-    // Criar os dados para a Thread (Exatamente como no Auto-Solve)
+    // Criar os dados para a Thread como no Auto-Solve
     EstadoJogo estado;
     estado.corDaFrenteFila = m_passengerQueue->getPrimeiraCor();
 
@@ -507,7 +524,7 @@ void GameWidget::onJogadaIACalculada(int busId) {
 
     if (!busAlvo) return;
 
-    // Se pedimos um Hint, apenas acendemos a luz
+    //Se pedimos um Hint, apenas acendemos a luz
     if (m_esperandoHint) {
         busAlvo->setHighlighted(true);
         QTimer::singleShot(GameConfig::DURACAO_HINT_MS, this, [busAlvo]() {
@@ -517,7 +534,7 @@ void GameWidget::onJogadaIACalculada(int busId) {
         });
         m_esperandoHint = false; // Tarefa concluída, desligamos o modo hint
     }
-    // Se não, é o Auto-Solve em ação, vamos movê-lo!
+    //Se não, é o Auto-Solve em ação
     else {
         if (m_parkingArea->vagasLivres() > 0 && !busAlvo->isMoving()) {
             busAlvo->setMoving(true);
@@ -560,22 +577,21 @@ void GameWidget::atualizarTimerJogo() {
 
     int minAtual = m_tempoDecorrido / 60;
     int segAtual = m_tempoDecorrido % 60;
-    QString tempoAtualStr = QString("%1:%2")
+    QString tempoAtual = QString("%1:%2")
                                 .arg(minAtual, 2, 10, QChar('0'))
                                 .arg(segAtual, 2, 10, QChar('0'));
 
-    QString melhorTempoStr;
+    QString melhorTempo;
     if (m_melhorTempo == 9999 || m_melhorTempo <= 0) {
-        melhorTempoStr = "--:--";
+        melhorTempo = "--:--";
     } else {
         int minMelhor = m_melhorTempo / 60;
         int segMelhor = m_melhorTempo % 60;
-        melhorTempoStr = QString("%1:%2")
+        melhorTempo = QString("%1:%2")
                              .arg(minMelhor, 2, 10, QChar('0'))
                              .arg(segMelhor, 2, 10, QChar('0'));
     }
 
-    m_lblCronometro->setText(QString("⏱️ %1 | 🏆 Recorde: %2")
-                                 .arg(tempoAtualStr)
-                                 .arg(melhorTempoStr));
+    m_lblCronometro->setText(QString("⏱%1").arg(tempoAtual));
+    m_lblRecorde->setText(QString("🏆%1").arg(melhorTempo));
 }

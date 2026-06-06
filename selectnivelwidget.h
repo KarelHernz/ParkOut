@@ -2,17 +2,18 @@
 #define SELECTNIVELWIDGET_H
 
 #include <QWidget>
+#include <QPushButton>
 
 class SelecaoNivelWidget : public QWidget {
     Q_OBJECT
 public:
     explicit SelecaoNivelWidget(QWidget *parent = nullptr);
 
-signals:
-    // Sinal enviado quando escolhes um nível
-    void nivelSelecionado(int nivelId); 
+private:
+    void makeStyle(QPushButton *btt);
 
-    // Sinal enviado quando clicas em "Voltar"
+signals:
+    void nivelSelecionado(int nivelId); 
     void voltarClicado();               
 };
 

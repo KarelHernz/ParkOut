@@ -92,10 +92,11 @@ private:
 
     QElapsedTimer m_timerNivel; // Mede quanto tempo passou
     int m_tempoLimiteSegundos;  // O limite, ex: 300s (5 min)
-    QTimer *m_timerVisual;      // Para atualizar o relógio no ecrã (se tiveres uma Label)
+    QTimer *m_timerVisual;      // Para atualizar o relógio no ecrã
     void verificarTempoLimite();
 
     QLabel* m_lblCronometro;   // A label que vai mostrar os tempos
+    QLabel *m_lblRecorde;      // A label que vai mostrar o redorde
     QTimer* m_timerJogo;       // O timer que vai contar o tempo
     int m_tempoDecorrido;      // Segundos desde o início do nível
     int m_melhorTempo;         // Melhor tempo do nível atual (carregado do JSON)

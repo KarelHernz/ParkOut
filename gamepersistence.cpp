@@ -37,6 +37,7 @@ int GamePersistence::lerMelhorTempo(int nivelId) {
     return 9999; // Sem recorde
 }
 
+//Guarda o recorde do jogador
 void GamePersistence::guardarRecorde(int nivelId, int tempo) {
     QString caminhoArquivo = obterCaminhoSeguro("recordes.json");
     QJsonObject json;
@@ -71,10 +72,10 @@ int GamePersistence::getNivelDesbloqueado() {
     return QJsonDocument::fromJson(file.readAll()).object()["unlockedLevel"].toInt(1);
 }
 
+//Guarda o progresso do jogador
 void GamePersistence::guardarProgresso(int nivelDesbloqueado) {
     int nivelAtualGuardado = getNivelDesbloqueado();
 
-    // Se o jogador repetir um nível antigo, não queremos baixar o progresso dele
     if (nivelDesbloqueado <= nivelAtualGuardado) return;
 
     QString caminhoArquivo = obterCaminhoSeguro("progress.json");
@@ -88,4 +89,25 @@ void GamePersistence::guardarProgresso(int nivelDesbloqueado) {
     } else {
         qWarning() << "Erro: Não foi possível gravar o progresso em" << caminhoArquivo;
     }
+}
+
+//Apaga o progresso do jogador
+bool GamePersistence::apagarProgresso() {
+    QString pastaGuardar = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QFile ficheiroProgresso(pastaGuardar + "/progress.json");
+    QFile ficheiroRecordes(pastaGuardar + "/recordes.json");
+
+    bool apagouAlgo = false;
+
+    if (ficheiroProgresso.exists()) {
+        ficheiroProgresso.remove();
+        apagouAlgo = true;
+    }
+
+    if (ficheiroRecordes.exists()) {
+        ficheiroRecordes.remove();
+        apagouAlgo = true;
+    }
+
+    return apagouAlgo;
 }

@@ -42,6 +42,7 @@ qt_add_resources(CrossPlatformQtGame "Recursos"
         src/json/levels.json
         src/json/progress.json
         src/json/recordes.json
+        src/img/ParkOut_Logo.png
 )
 
 target_link_libraries(CrossPlatformQtGame
@@ -72,7 +73,7 @@ if(EMSCRIPTEN)
 endif()
 
 if(ANDROID)
-    # Define a pasta onde está o AndroidManifest.xml
+    #Define a pasta onde está o AndroidManifest.xml
     set_property(TARGET CrossPlatformQtGame PROPERTY
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android"
     )
