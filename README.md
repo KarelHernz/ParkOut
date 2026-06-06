@@ -1,4 +1,4 @@
-[relatorio_bfs_vs_astar.md](https://github.com/user-attachments/files/28664740/relatorio_bfs_vs_astar.md)
+
 ## **BFS VS A*** 
 
 _Análise Comparativa de Algoritmos de Busca e suas Complexidades_ 
@@ -29,9 +29,6 @@ Dominado pelo termo de maior ordem, a complexidade temporal assintótica do BFS 
 
 _**O(b[d] )**_ 
 
-Relatório Técnico: BFS vs A* 
-
-
 ## **2.2 Complexidade de Espaço** 
 
 A memória é o grande limitador do BFS. Para assegurar que a exploração ocorre estritamente por níveis e para reconstruir o caminho no final, o algoritmo armazena todos os nós gerados na memória. No nível _**d**_ , a cauda da fila conterá aproximadamente _**b[d]**_ nós. Assim, a complexidade espacial partilha o comportamento exponencial: 
@@ -60,9 +57,6 @@ Para garantir a otimalidade e evitar ciclos, o A* mantém registo de todos os n�
 
 ## _**O(b[d] )**_ 
 
-Relatório Técnico: BFS vs A* 
-
-
 
 ## **4. Confronto Direto e Diferenças de Complexidade** 
 
@@ -80,6 +74,6 @@ Embora a análise matemática formal em "pior caso" classifique ambos os algorit
 
 O BFS funciona como uma expansão esférica uniforme, sendo ineficiente para espaços de estados profundos ou complexos devido ao consumo intolerável de memória RAM. O A*, por outro lado, canaliza os recursos de processamento diretamente em direção ao alvo graças ao vetor heurístico, reduzindo drasticamente a constante oculta da notação Big-O. O gargalo prático do A* permanece o espaço, o que levou ao desenvolvimento de variantes de memória limitada como o IDA* ou SMA*. 
 
-Relatório Técnico: BFS vs A* 
+
 
 
