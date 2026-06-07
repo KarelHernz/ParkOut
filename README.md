@@ -1,13 +1,6 @@
 
 ## **BFS VS A*** 
 
-_Análise Comparativa de Algoritmos de Busca e suas Complexidades_ 
-
-
-
-**----- 
-Documento: Relatório Técnico de Engenharia / Contexto: Estruturas de Dados e Algoritmos de<br>Ciência da Computação Inteligência Artificial<br>Variáveis: b  = fator de ramificação;  d  = Foco: Análise Assintótica de Tempo e<br>profundidade do nó objetivo Espaço (Notação Big-O)<br>**----- End of picture text -----**<br>
-
 
 ## **1. Introdução** 
 
