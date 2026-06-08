@@ -11,8 +11,8 @@
 #include <QGraphicsLineItem>
 #include <QPen>
 #include <QBrush>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QWidget>
 #include <QLabel>
 #include <QFont>
 #include <QMessageBox>
@@ -34,11 +34,11 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent), m_nivelAtual(1) {
     m_usouAutoSolve = false;
     qRegisterMetaType<EstadoJogo>("EstadoJogo");
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(10, 10, 10, 10);
+    m_mainLayout = new QGridLayout(this);
+    m_mainLayout->setContentsMargins(10, 10, 10, 10);
 
-    configurarBarraSuperior(mainLayout);
-    configurarCena(mainLayout);
+    configurarBarraSuperior();
+    configurarCena();
     configurarPaineisFinais();
 
     m_passengerQueue = new PassengerQueue(m_scene, this);
@@ -47,16 +47,14 @@ GameWidget::GameWidget(QWidget *parent) : QWidget(parent), m_nivelAtual(1) {
     m_workerThread = new QThread(this);
     m_autoSolverIA = new AutoSolverIA();
 
-    //Movemos o trabalhador para dentro da nova Thread
     m_autoSolverIA->moveToThread(m_workerThread);
-    connect(this, &GameWidget::solicitarCalculoIA, m_autoSolverIA, & AutoSolverIA::calcularMelhorJogada);
-    connect(m_autoSolverIA, & AutoSolverIA::jogadaCalculada, this, &GameWidget::onJogadaIACalculada);
+    connect(this, &GameWidget::solicitarCalculoIA, m_autoSolverIA, &AutoSolverIA::calcularMelhorJogada);
+    connect(m_autoSolverIA, &AutoSolverIA::jogadaCalculada, this, &GameWidget::onJogadaIACalculada);
 
-    //Limpeza de memória quando a thread terminar
     connect(m_workerThread, &QThread::finished, m_autoSolverIA, &QObject::deleteLater);
     m_workerThread->start();
 
-    //Motor de animação
+    //Timer para fazer que os veiculos avancem
     QTimer *gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, [this]() {
         for (BusItem *bus : m_veiculosAtivos) {
@@ -76,98 +74,75 @@ GameWidget::~GameWidget() {
     }
 }
 
-void GameWidget::configurarBarraSuperior(QVBoxLayout *mainLayout) {
-    //Criar um container vertical que vai segurar os dois layouts
-    QVBoxLayout *topBarContainer = new QVBoxLayout();
-
-    //Cria dois layouts horizontais
-    QHBoxLayout *linha1 = new QHBoxLayout();
-    QHBoxLayout *linha2 = new QHBoxLayout();
+void GameWidget::configurarBarraSuperior() {
+    //Wwidget para agrupar os controlos e um layout em grelha interna
+    m_panelControlos = new QWidget(this);
+    m_controlosLayout = new QGridLayout(m_panelControlos);
+    m_controlosLayout->setContentsMargins(0, 0, 0, 0);
 
     //Criação dos botões
     btnVoltar = new QPushButton("SAIR", this);
-    btnVoltar->setFixedSize(90, 40);
+    btnVoltar->setFixedSize(100, 40);
     btnVoltar->setStyleSheet("background-color: #E74C3C; color: white; font-weight: bold; border-radius: 10px;");
 
     btnReset = new QPushButton("RESET", this);
-    btnReset->setFixedSize(90, 40);
+    btnReset->setFixedSize(100, 40);
     btnReset->setStyleSheet("background-color: #34495E; color: white; font-weight: bold; border-radius: 10px;");
 
     btnUndo = new QPushButton("UNDO", this);
-    btnUndo->setFixedSize(90, 40);
+    btnUndo->setFixedSize(100, 40);
     btnUndo->setStyleSheet("background-color: #9B59B6; color: white; font-weight: bold; border-radius: 10px;");
 
     btnHint = new QPushButton("HINT", this);
-    btnHint->setFixedSize(90, 40);
+    btnHint->setFixedSize(100, 40);
     btnHint->setStyleSheet("background-color: #F1C40F; color: #2C3E50; font-weight: bold; border-radius: 10px;");
 
     btnAutoSolve = new QPushButton("AUTO-SOLVE", this);
-    btnAutoSolve->setFixedSize(110, 40);
+    btnAutoSolve->setFixedSize(100, 40);
     btnAutoSolve->setStyleSheet("background-color: #E67E22; color: white; font-weight: bold; border-radius: 10px;");
 
     m_lblCronometro = new QLabel("⏱00:00", this);
     m_lblCronometro->setStyleSheet("font-size: 18px; font-weight: bold; color: #FFFFFF; padding-bottom: 2px;");
-    m_lblCronometro->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     m_lblRecorde = new QLabel("🏆--:--", this);
-    m_lblRecorde->setStyleSheet("font-size: 18px; font-weight: bold; color: #F1C40F; padding-top: 2px;");
-    m_lblRecorde->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_lblRecorde->setStyleSheet("font-size: 18px; font-weight: bold; color: #DC9B00; padding-top: 2px;");
 
-    //Preenche a linha 1
-    linha1->addWidget(btnVoltar);
-    linha1->addWidget(btnReset);
-    linha1->addWidget(btnUndo);
-    linha1->addStretch();
-    linha1->addWidget(m_lblCronometro);
+    m_mainLayout->addWidget(m_panelControlos, 0, 0);
 
-    //Preenche a linha 2
-    linha2->addWidget(btnHint);
-    linha2->addWidget(btnAutoSolve);
-    linha2->addStretch();
-    linha2->addWidget(m_lblRecorde);
-
-    //Adiciona as duas linhas ao contentor do topo
-    topBarContainer->addLayout(linha1);
-    topBarContainer->addLayout(linha2);
-
-    //Adiciona o topo à janela principal
-    mainLayout->addLayout(topBarContainer);
-
-    //Liga os botões
+    // Ligações dos botões
     connect(btnVoltar, &QPushButton::clicked, this, [this]() { emit voltarAoMenu(); });
     connect(btnUndo, &QPushButton::clicked, this, &GameWidget::realizarUndo);
     connect(btnReset, &QPushButton::clicked, this, &GameWidget::reiniciarNivel);
     connect(btnHint, &QPushButton::clicked, this, &GameWidget::mostrarHint);
     connect(btnAutoSolve, &QPushButton::clicked, this, &GameWidget::iniciarAutoSolve);
 
-    //Configura os Timers
     m_timerJogo = new QTimer(this);
     connect(m_timerJogo, &QTimer::timeout, this, &GameWidget::atualizarTimerJogo);
     m_timerAutoSolve = new QTimer(this);
     connect(m_timerAutoSolve, &QTimer::timeout, this, &GameWidget::passoAutoSolve);
 }
 
-void GameWidget::configurarCena(QVBoxLayout *mainLayout) {
+void GameWidget::configurarCena() {
     m_scene = new QGraphicsScene(this);
-    m_scene->setSceneRect(0, 0, GameConfig::LARGURA_CENA, GameConfig::ALTURA_CENA);
+    m_scene->setSceneRect(0, 0, GameConfig::LARGURA_GRELHA, GameConfig::ALTURA_CENA);
 
     m_view = new QGraphicsView(m_scene, this);
-
+    m_view->setAlignment(Qt::AlignCenter);
     m_view->setRenderHint(QPainter::Antialiasing);
     m_view->setRenderHint(QPainter::SmoothPixmapTransform);
     m_view->setStyleSheet("background-color: #ECF0F1; border: 3px solid #2C3E50; border-radius: 15px;");
     m_view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    // Adiciona a visualização à janela principal
-    mainLayout->addWidget(m_view);
+    m_mainLayout->addWidget(m_view, 1, 0);
 }
 
 void GameWidget::configurarPaineisFinais() {
     //Painel vitoria
     m_panelVitoria = new QFrame(this);
     m_panelVitoria->setFixedSize(300, 250);
-    m_panelVitoria->setStyleSheet("QFrame { background-color: #ECF0F1; border: 4px solid #27AE60; border-radius: 15px; }");
+    m_panelVitoria->setStyleSheet("QFrame { background-color: rgba(30, 34, 40, 240); border-radius: 15px; border: 3px solid #27AE60; }"
+                                  "QLabel { color: white; font-size: 16px; border: none; background: transparent; }");
 
     QVBoxLayout *vitoriaLayout = new QVBoxLayout(m_panelVitoria);
 
@@ -210,7 +185,8 @@ void GameWidget::configurarPaineisFinais() {
     //Painel derrota
     m_panelGameOver = new QFrame(this);
     m_panelGameOver->setFixedSize(300, 200);
-    m_panelGameOver->setStyleSheet("QFrame { background-color: #ECF0F1; border: 4px solid #C0392B; border-radius: 15px; }");
+    m_panelGameOver->setStyleSheet("QFrame { background-color: rgba(30, 34, 40, 240); border-radius: 15px; border: 3px solid #C0392B; }"
+                                   "QLabel { color: white; font-size: 16px; border: none; background: transparent; }");
 
     QVBoxLayout *gameOverLayout = new QVBoxLayout(m_panelGameOver);
 
@@ -244,15 +220,99 @@ void GameWidget::configurarPaineisFinais() {
 
 void GameWidget::resizeEvent(QResizeEvent *event) {
     QWidget::resizeEvent(event);
+
+    //Mantém os slots visíveis
     if (m_view && m_scene) {
-        m_view->fitInView(m_scene->sceneRect(), Qt::KeepAspectRatio);
+        int larguraTotalSlots = (GameConfig::NUM_SLOTS * GameConfig::LARGURA_SLOT) +
+                                ((GameConfig::NUM_SLOTS - 1) * GameConfig::ESPACAMENTO_SLOTS);
+        double startX_Slots = (GameConfig::LARGURA_GRELHA - larguraTotalSlots) / 2.0;
+        double minX = qMin(0.0, startX_Slots);
+        double maxX = qMax((double)GameConfig::LARGURA_GRELHA, startX_Slots + larguraTotalSlots);
+        QRectF areaIdeal(minX, m_scene->sceneRect().top(), maxX - minX, m_scene->sceneRect().height());
+        areaIdeal.adjust(-20, -20, 20, 20);
+        m_view->fitInView(areaIdeal, Qt::KeepAspectRatio);
     }
 
+    //Reorganização dinâmica do layout (muda de acordo com a rotação)
+    bool isLandscape = (width() > height());
+
+    if (m_mainLayout && m_panelControlos && m_controlosLayout) {
+        // Remove tudo temporariamente para evitar conflito de posições
+        m_mainLayout->removeWidget(m_panelControlos);
+        m_mainLayout->removeWidget(m_view);
+
+        m_controlosLayout->removeWidget(btnVoltar);
+        m_controlosLayout->removeWidget(btnReset);
+        m_controlosLayout->removeWidget(btnUndo);
+        m_controlosLayout->removeWidget(btnHint);
+        m_controlosLayout->removeWidget(btnAutoSolve);
+        m_controlosLayout->removeWidget(m_lblCronometro);
+        m_controlosLayout->removeWidget(m_lblRecorde);
+
+        // Limpa as "molas" (stretches) antigas para garantir uma transição limpa
+        for (int i = 0; i <= 7; ++i) m_controlosLayout->setRowStretch(i, 0);
+        for (int i = 0; i <= 4; ++i) m_controlosLayout->setColumnStretch(i, 0);
+
+        if (isLandscape) {
+            //Modo horizontal
+            m_mainLayout->addWidget(m_panelControlos, 0, 0);
+            m_mainLayout->addWidget(m_view, 0, 1);
+
+            m_mainLayout->setColumnStretch(0, 0);
+            m_mainLayout->setColumnStretch(1, 1);
+            m_mainLayout->setRowStretch(0, 1);
+            m_mainLayout->setRowStretch(1, 0);
+
+            m_lblCronometro->setAlignment(Qt::AlignCenter);
+            m_lblRecorde->setAlignment(Qt::AlignCenter);
+
+            //Contadores no topo
+            m_controlosLayout->addWidget(m_lblCronometro, 0, 0);
+            m_controlosLayout->addWidget(m_lblRecorde, 1, 0);
+
+            //Mola invisível no meio para empurrar os botões para o fundo
+            m_controlosLayout->setRowStretch(2, 1);
+
+            //Botões ordenados de baixo para cima
+            m_controlosLayout->addWidget(btnAutoSolve, 3, 0);
+            m_controlosLayout->addWidget(btnHint, 4, 0);
+            m_controlosLayout->addWidget(btnUndo, 5, 0);
+            m_controlosLayout->addWidget(btnReset, 6, 0);
+            m_controlosLayout->addWidget(btnVoltar, 7, 0);
+
+        } else {
+            //Modo vertical
+            m_mainLayout->addWidget(m_panelControlos, 0, 0);
+            m_mainLayout->addWidget(m_view, 1, 0);
+
+            m_mainLayout->setRowStretch(0, 0);
+            m_mainLayout->setRowStretch(1, 1);
+            m_mainLayout->setColumnStretch(0, 1);
+            m_mainLayout->setColumnStretch(1, 0);
+
+            m_lblCronometro->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+            m_lblRecorde->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+            // Linha 1 do Topo
+            m_controlosLayout->addWidget(btnVoltar, 0, 0);
+            m_controlosLayout->addWidget(btnReset, 0, 1);
+            m_controlosLayout->addWidget(btnUndo, 0, 2);
+            m_controlosLayout->addWidget(m_lblCronometro, 0, 4);
+
+            // Linha 2 do Topo
+            m_controlosLayout->addWidget(btnHint, 1, 0);
+            m_controlosLayout->addWidget(btnAutoSolve, 1, 1);
+            m_controlosLayout->addWidget(m_lblRecorde, 1, 4);
+
+            m_controlosLayout->setColumnStretch(3, 1);
+        }
+    }
+
+    //Paines de vitoria e game over
     if (m_panelVitoria) {
         m_panelVitoria->move((width() - m_panelVitoria->width()) / 2,
                              (height() - m_panelVitoria->height()) / 2);
     }
-
     if (m_panelGameOver) {
         m_panelGameOver->move((width() - m_panelGameOver->width()) / 2,
                               (height() - m_panelGameOver->height()) / 2);
@@ -262,7 +322,13 @@ void GameWidget::resizeEvent(QResizeEvent *event) {
 void GameWidget::showEvent(QShowEvent *event) {
     QWidget::showEvent(event);
     if (m_view && m_scene) {
-        m_view->fitInView(m_scene->sceneRect(), Qt::KeepAspectRatio);
+        int larguraTotalSlots = (GameConfig::NUM_SLOTS * GameConfig::LARGURA_SLOT) + ((GameConfig::NUM_SLOTS - 1) * GameConfig::ESPACAMENTO_SLOTS);
+        double startX_Slots = (GameConfig::LARGURA_GRELHA - larguraTotalSlots) / 2.0;
+        double minX = qMin(0.0, startX_Slots);
+        double maxX = qMax((double)GameConfig::LARGURA_GRELHA, startX_Slots + larguraTotalSlots);
+        QRectF areaIdeal(minX, m_scene->sceneRect().top(), maxX - minX, m_scene->sceneRect().height());
+        areaIdeal.adjust(-20, -20, 20, 20);
+        m_view->fitInView(areaIdeal, Qt::KeepAspectRatio);
     }
 }
 
@@ -292,16 +358,20 @@ void GameWidget::carregarNivel(int nivelId) {
     m_melhorTempo = GamePersistence::lerMelhorTempo(m_nivelAtual);
     m_timerJogo->start(1000);
 
+    int larguraTotalSlots = (GameConfig::NUM_SLOTS * GameConfig::LARGURA_SLOT) + ((GameConfig::NUM_SLOTS - 1) * GameConfig::ESPACAMENTO_SLOTS);
+    int startX_Slots = (GameConfig::LARGURA_GRELHA - larguraTotalSlots) / 2;
+
     //Zona de espera
     QGraphicsTextItem *txtFila = m_scene->addText(QString("FILA DE ESPERA - NÍVEL %1").arg(nivelId));
+    txtFila->setFont(QFont("Arial", 18, QFont::Bold));
+    int textX = (GameConfig::LARGURA_GRELHA - txtFila->boundingRect().width()) / 2;
+    txtFila->setPos(textX, GameConfig::PASSAGEIROS_Y - 20);
     txtFila->setDefaultTextColor(QColor("#D35400"));
-    txtFila->setFont(QFont("Arial", 10, QFont::Bold));
-    txtFila->setPos(40, GameConfig::PASSAGEIROS_Y - 20);
 
     //Os slots de estacionamento
     QPen penSlot(QColor("#7F8C8D"), 2, Qt::DashLine);
     for (int i = 0; i < GameConfig::NUM_SLOTS; ++i) {
-        int slotX = GameConfig::ESPACAMENTO_SLOTS + i * (GameConfig::LARGURA_SLOT + GameConfig::ESPACAMENTO_SLOTS);
+        int slotX = startX_Slots + i * (GameConfig::LARGURA_SLOT + GameConfig::ESPACAMENTO_SLOTS);
         m_scene->addRect(slotX, GameConfig::SLOT_Y, GameConfig::LARGURA_SLOT, GameConfig::ALTURA_SLOT, penSlot, QBrush(QColor("#DFE4EA")));
     }
 
@@ -324,20 +394,25 @@ void GameWidget::construirNivel(int nivelId) {
     // O GameWidget já não faz ideia do que é um JSON. Ele apenas pede os dados à fábrica!
     LevelData dadosDoNivel = LevelLoader::carregar(nivelId);
 
-    // Se o nível for inválido (não foi encontrado no ficheiro JSON)
     if (!dadosDoNivel.valido) {
-        QMessageBox::information(this, "Fim do Jogo!", "Parabéns, concluíste todos os níveis disponíveis!");
-        emit voltarAoMenu();
-        return;
+        mostrarPainelAviso("Fim do Jogo!",
+                           "Parabéns, concluíste todos os níveis disponíveis!",
+                           true);
     }
 
-    // Gerar a fila a partir da lista limpa
+    //Gera a fila a partir da lista limpa
     m_passengerQueue->gerar(dadosDoNivel.coresDaFila);
 
-    // Adicionar os autocarros à cena
+    //Adiciona os autocarros à cena
     for (const BusData &b : dadosDoNivel.autocarros) {
         adicionarVeiculo(b.id, b.cor, b.capacidade, b.tamanho, b.direcao, b.coluna, b.linha);
     }
+
+    //Ativa o resizeEvent uma única vez para que o layout se adapte
+    QTimer::singleShot(10, this, [this]() {
+        QResizeEvent eventoFalso(this->size(), this->size());
+        this->resizeEvent(&eventoFalso);
+    });
 }
 
 void GameWidget::adicionarVeiculo(int id, const QString &cor, int capacidade, int tamanho, Direction dir, int col, int linha) {
@@ -429,12 +504,11 @@ void GameWidget::mostrarPainelVitoria() {
         //Guarda o progresso usando o gestor estático
         GamePersistence::guardarProgresso(m_nivelAtual + 1);
     } else {
-        QMessageBox::warning(this, "Piloto Automático",
-                             "O nível foi resolvido automaticamente!\n\n"
-                             "Atenção: Como usou a ajuda do Auto-Solve, o progresso NÃO foi guardado "
-                             "e o próximo nível continua trancado.\n\n"
-                             "Tente resolver o nível sem ajuda para o desbloquear!");
-        emit reiniciarNivel();
+        mostrarPainelAviso("Piloto Automático",
+                           "O nível foi resolvido automaticamente!\n"
+                           "Atenção: Como utilizou a ajuda do Auto-Solve, o progresso não vai ficar guardado e o próximo nível continua bloqueado.\n"
+                           "Tente resolver o nível sem ajuda para o desbloquear!",
+                           false);
     }
 }
 
@@ -456,12 +530,12 @@ void GameWidget::realizarUndo() {
     //Recupera o último veículo de forma segura
     QPointer<BusItem> bus = m_historicoUndo.takeLast();
 
-    //Se o veículo for nulo cancelamos o Undo
+    //Se o veículo for nulo é cancelado o Undo
     if (!bus) {
         return;
     }
 
-    //Remover o autocarro do slot de estacionamento superior
+    //Remove o autocarro do slot de estacionamento superior
     m_parkingArea->removerBus(bus.data());
 
     //Cuspir os passageiros de volta para a fila
@@ -471,10 +545,10 @@ void GameWidget::realizarUndo() {
     }
     bus->passageirosApanhadosNoSlot = 0;
 
-    //Reorganizar visualmente toda a fila de passageiros para trás
+    //Reorganiza visualmente toda a fila de passageiros para trás
     m_passengerQueue->atualizarPosicoesVisuais();
 
-    //Teletransportar o autocarro de volta à sua garagem original
+    //Teletransporta o autocarro de volta à sua posição original
     bus->setPos(bus->posicaoOriginal);
     bus->resetarEstadoGrelha();
 }
@@ -509,11 +583,11 @@ void GameWidget::iniciarAutoSolve() {
 
 void GameWidget::onJogadaIACalculada(int busId) {
     if (busId == -1) {
-        m_esperandoHint = false; // Reset da variável de segurança
+        m_esperandoHint = false;
         return;
     }
 
-    // Procura o autocarro correspondente ao ID
+    //Procura o autocarro correspondente ao ID
     BusItem *busAlvo = nullptr;
     for (BusItem *bus : m_veiculosAtivos) {
         if (bus && bus->id() == busId) {
@@ -594,4 +668,59 @@ void GameWidget::atualizarTimerJogo() {
 
     m_lblCronometro->setText(QString("⏱%1").arg(tempoAtual));
     m_lblRecorde->setText(QString("🏆%1").arg(melhorTempo));
+}
+
+void GameWidget::mostrarPainelAviso(const QString &titulo, const QString &texto, bool voltarMenuAoFechar){
+    QFrame *panelAviso = new QFrame(this);
+    panelAviso->setFixedSize(480, 260);
+
+    // Estilo do painel (fundo escuro, texto branco, bordas amarelo/laranja)
+    panelAviso->setStyleSheet(
+        "QFrame { background-color: rgba(30, 34, 40, 240); border-radius: 15px; border: 3px solid #e5c07b; }"
+        "QLabel { color: white; font-size: 16px; border: none; background: transparent; }"
+        );
+
+    QVBoxLayout *layoutAviso = new QVBoxLayout(panelAviso);
+    layoutAviso->setContentsMargins(20, 20, 20, 20);
+    layoutAviso->setSpacing(15);
+
+    //Título
+    QLabel *lblTitulo = new QLabel(titulo, panelAviso);
+    lblTitulo->setStyleSheet("color: #e5c07b; font-size: 20px; font-weight: bold;");
+    lblTitulo->setAlignment(Qt::AlignCenter);
+
+    //Texto
+    QLabel *lblTexto = new QLabel(texto, panelAviso);
+    lblTexto->setAlignment(Qt::AlignCenter);
+    lblTexto->setWordWrap(true);
+
+    //Botão
+    QPushButton *btnOk = new QPushButton("OK", panelAviso);
+    btnOk->setCursor(Qt::PointingHandCursor);
+    btnOk->setStyleSheet("QPushButton { ""background-color: #e5c07b; "
+                                         "color: #1e2228; "
+                                         "border-radius: 8px; "
+                                         "padding: 10px 40px; "
+                                         "font-size: 16px; font-weight: "
+                                         "bold; "
+                                         "border: none; }"
+                         "QPushButton:hover { background-color: #d19a66; }");
+
+    connect(btnOk, &QPushButton::clicked, this, [this, panelAviso, voltarMenuAoFechar]() {
+        panelAviso->deleteLater();
+        if (voltarMenuAoFechar) {
+            emit voltarAoMenu();
+        } else {
+            reiniciarNivel();
+        }
+    });
+
+    layoutAviso->addWidget(lblTitulo);
+    layoutAviso->addWidget(lblTexto);
+    layoutAviso->addWidget(btnOk, 0, Qt::AlignCenter);
+
+    // Centrar e mostrar
+    panelAviso->move((width() - panelAviso->width()) / 2, (height() - panelAviso->height()) / 2);
+    panelAviso->show();
+    panelAviso->raise();
 }

@@ -11,9 +11,13 @@ bool ParkingArea::tentarEstacionar(BusItem *bus) {
         if (m_slots[i] == nullptr) {
             m_slots[i] = bus;
 
-            // Substituído por constantes!
-            int slotX = GameConfig::ESPACAMENTO_SLOTS + i * (GameConfig::LARGURA_SLOT + GameConfig::ESPACAMENTO_SLOTS);
+            int larguraTotalSlots = (GameConfig::NUM_SLOTS * GameConfig::LARGURA_SLOT) + ((GameConfig::NUM_SLOTS - 1) * GameConfig::ESPACAMENTO_SLOTS);
+            int startX_Slots = (GameConfig::LARGURA_GRELHA - larguraTotalSlots) / 2;
 
+            //Calculamos a posição do slot a partir do ponto inicial centrado
+            int slotX = startX_Slots + i * (GameConfig::LARGURA_SLOT + GameConfig::ESPACAMENTO_SLOTS);
+
+            //Coloca o veiculo perfeitamente alinhado
             bus->setPos(slotX + GameConfig::SLOT_OFFSET_CENTRO, GameConfig::SLOT_Y + GameConfig::SLOT_OFFSET_CENTRO);
             bus->parkInSlot();
             return true;

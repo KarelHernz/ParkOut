@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(CrossPlatformQtGame LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Test)
 
 qt_standard_project_setup()
@@ -60,17 +63,6 @@ target_link_libraries(Testes
         Qt::Test
         Qt::Widgets
 )
-
-if(EMSCRIPTEN)
-    target_link_options(CrossPlatformQtGame PRIVATE
-        "-s" "USE_PTHREADS=1"
-        "-s" "PTHREAD_POOL_SIZE=2"
-    )
-
-    target_link_options(Testes PRIVATE
-        "-s" "USE_PTHREADS=1"
-    )
-endif()
 
 if(ANDROID)
     #Define a pasta onde está o AndroidManifest.xml
