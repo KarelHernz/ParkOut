@@ -8,7 +8,7 @@ constexpr int ALTURA_CENA = 850;
 
 //Configuração da grelha de Jogo
 constexpr int TAMANHO_CELULA = 80;
-constexpr int NUM_COLUNAS = 7;
+constexpr int NUM_COLUNAS = 8;
 constexpr int NUM_LINHAS = 8;
 constexpr int TOPO_GRELHA_Y = 210;
 constexpr int LARGURA_GRELHA = NUM_COLUNAS * TAMANHO_CELULA;
