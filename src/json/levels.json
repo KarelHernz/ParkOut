@@ -3,8 +3,10 @@
     {
       "id": 1,
       "fila": [
-        "blue", "blue", "blue", "blue", "blue", "blue",
-        "red", "red", "red", "red"
+        "blue", "blue", "blue",
+        "red", "red",
+        "blue", "blue", "blue",
+        "red", "red"
       ],
       "veiculos": [
         {"id": 1, "cor": "blue", "capacidade": 6, "tamanho": 2, "direcao": "Up", "coluna": 2, "linha": 3},
@@ -14,85 +16,114 @@
     {
       "id": 2,
       "fila": [
-        "blue", "blue", "blue", "blue", "blue", "blue",
-        "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange",
+        "orange", "orange", "orange", "orange",
+        "blue", "blue", "blue",
+        "orange", "orange", "orange", "orange",
+        "blue", "blue", "blue",
         "red", "red", "red", "red"
       ],
       "veiculos": [
-        {"id": 1, "cor": "blue", "capacidade": 6, "tamanho": 2, "direcao": "Left", "coluna": 2, "linha": 2},
-        {"id": 2, "cor": "red", "capacidade": 4, "tamanho": 2, "direcao": "Up", "coluna": 5, "linha": 2},
-        {"id": 3, "cor": "orange", "capacidade": 8, "tamanho": 3, "direcao": "Right", "coluna": 3, "linha": 6}
+        { "id": 1, "cor": "blue", "capacidade": 6, "tamanho": 3, "direcao": "Right", "coluna": 0, "linha": 0 },
+        { "id": 2, "cor": "orange", "capacidade": 8, "tamanho": 4, "direcao": "Down", "coluna": 4, "linha": 0 },
+        { "id": 3, "cor": "red", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 0, "linha": 5 }
       ]
     },
     {
       "id": 3,
       "fila": [
-        "blue", "blue", "blue", "blue",
-        "purple", "purple", "purple", "purple",
-        "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red",
-        "orange", "orange", "orange", "orange", "orange", "orange"
+        "red", "red", "red",
+        "blue", "blue",
+        "red", "red", "red",
+        "blue", "blue",
+        "orange", "orange", "orange",
+        "purple", "purple",
+        "orange", "orange", "orange",
+        "purple", "purple",
+        "red", "red", "red", "red", "red", "red"
       ],
       "veiculos": [
-        {"id": 1, "cor": "blue", "capacidade": 4, "tamanho": 2, "direcao": "Down", "coluna": 2, "linha": 1},
-        {"id": 2, "cor": "red", "capacidade": 12, "tamanho": 4, "direcao": "Left", "coluna": 3, "linha": 4},
-        {"id": 3, "cor": "orange", "capacidade": 6, "tamanho": 2, "direcao": "Up", "coluna": 1, "linha": 5},
-        {"id": 4, "cor": "purple", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 4, "linha": 2}
+        { "id": 1, "cor": "blue", "capacidade": 4, "tamanho": 2, "direcao": "Up", "coluna": 1, "linha": 0 },
+        { "id": 2, "cor": "purple", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 2, "linha": 0 },
+        { "id": 3, "cor": "red", "capacidade": 12, "tamanho": 6, "direcao": "Down", "coluna": 7, "linha": 0 },
+        { "id": 4, "cor": "orange", "capacidade": 6, "tamanho": 3, "direcao": "Right", "coluna": 0, "linha": 6 }
       ]
     },
     {
       "id": 4,
       "fila": [
-        "orange", "orange", "orange", "orange",
-        "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue",
-        "green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green",
-        "purple", "purple", "purple", "purple", "purple", "purple",
-        "red", "red", "red", "red", "red", "red"
+        "green", "green", "green", "green",
+        "blue", "blue", "blue", "blue",
+        "green", "green", "green", "green",
+        "blue", "blue", "blue", "blue",
+        "purple", "purple", "purple",
+        "orange", "orange",
+        "purple", "purple", "purple",
+        "orange", "orange",
+        "red", "red", "red",
+        "green", "green", "green", "green",
+        "red", "red", "red"
       ],
       "veiculos": [
-        {"id": 1, "cor": "blue", "capacidade": 8, "tamanho": 3, "direcao": "Right", "coluna": 1, "linha": 2},
-        {"id": 2, "cor": "red", "capacidade": 6, "tamanho": 2, "direcao": "Up", "coluna": 5, "linha": 4},
-        {"id": 3, "cor": "orange", "capacidade": 4, "tamanho": 2, "direcao": "Left", "coluna": 6, "linha": 1},
-        {"id": 4, "cor": "purple", "capacidade": 6, "tamanho": 2, "direcao": "Down", "coluna": 4, "linha": 5},
-        {"id": 5, "cor": "green", "capacidade": 12, "tamanho": 4, "direcao": "Up", "coluna": 2, "linha": 4}
+        { "id": 1, "cor": "blue", "capacidade": 8, "tamanho": 4, "direcao": "Right", "coluna": 0, "linha": 0 },
+        { "id": 2, "cor": "green", "capacidade": 12, "tamanho": 6, "direcao": "Down", "coluna": 5, "linha": 0 },
+        { "id": 3, "cor": "purple", "capacidade": 6, "tamanho": 3, "direcao": "Left", "coluna": 0, "linha": 4 },
+        { "id": 4, "cor": "red", "capacidade": 6, "tamanho": 3, "direcao": "Up", "coluna": 7, "linha": 3 },
+        { "id": 5, "cor": "orange", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 1, "linha": 2 }
       ]
     },
     {
       "id": 5,
       "fila": [
         "blue", "blue", "blue", "blue",
-        "orange", "orange", "orange", "orange", "orange", "orange",
-        "green", "green", "green", "green", "green", "green",
-        "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue",
-        "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple", "purple",
-        "red", "red", "red", "red", "red", "red", "red", "red"
+        "purple", "purple", "purple", "purple",
+        "blue", "blue", "blue", "blue",
+        "purple", "purple", "purple", "purple",
+        "red", "red", "red", "red",
+        "orange", "orange", "orange",
+        "red", "red", "red", "red",
+        "orange", "orange", "orange",
+        "green", "green", "green",
+        "blue", "blue", "blue", "blue",
+        "green", "green", "green",
+        "purple", "purple", "purple", "purple",
+        "blue", "blue", "blue", "blue"
       ],
       "veiculos": [
-        {"id": 1, "cor": "blue", "capacidade": 12, "tamanho": 4, "direcao": "Left", "coluna": 1, "linha": 1},
-        {"id": 2, "cor": "red", "capacidade": 8, "tamanho": 3, "direcao": "Up", "coluna": 6, "linha": 2},
-        {"id": 3, "cor": "orange", "capacidade": 6, "tamanho": 2, "direcao": "Right", "coluna": 1, "linha": 6},
-        {"id": 4, "cor": "purple", "capacidade": 12, "tamanho": 4, "direcao": "Down", "coluna": 4, "linha": 3},
-        {"id": 5, "cor": "green", "capacidade": 6, "tamanho": 2, "direcao": "Up", "coluna": 3, "linha": 3},
-        {"id": 6, "cor": "blue", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 1, "linha": 3}
+        { "id": 1, "cor": "blue", "capacidade": 12, "tamanho": 6, "direcao": "Left", "coluna": 0, "linha": 0 },
+        { "id": 2, "cor": "purple", "capacidade": 12, "tamanho": 6, "direcao": "Down", "coluna": 1, "linha": 1 },
+        { "id": 3, "cor": "green", "capacidade": 6, "tamanho": 3, "direcao": "Right", "coluna": 4, "linha": 3 },
+        { "id": 4, "cor": "red", "capacidade": 8, "tamanho": 4, "direcao": "Down", "coluna": 7, "linha": 0 },
+        { "id": 5, "cor": "orange", "capacidade": 6, "tamanho": 3, "direcao": "Right", "coluna": 4, "linha": 7 },
+        { "id": 6, "cor": "blue", "capacidade": 4, "tamanho": 2, "direcao": "Down", "coluna": 5, "linha": 1 }
       ]
     },
     {
       "id": 6,
       "fila": [
-        "blue", "blue", "blue", "blue", "blue", "blue", "blue", "blue",
         "red", "red", "red", "red",
-        "green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green", "green",
-        "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange", "orange",
-        "purple", "purple", "purple", "purple", "purple", "purple",
-        "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red"
+        "green", "green", "green", "green",
+        "red", "red", "red", "red",
+        "green", "green", "green", "green",
+        "blue", "blue", "blue", "blue",
+        "orange", "orange", "orange", "orange",
+        "blue", "blue", "blue", "blue",
+        "orange", "orange", "orange", "orange",
+        "purple", "purple", "purple",
+        "red", "red", "red", "red",
+        "purple", "purple", "purple",
+        "green", "green", "green", "green",
+        "orange", "orange", "orange", "orange",
+        "red", "red", "red", "red",
+        "green", "green", "green", "green"
       ],
       "veiculos": [
-        {"id": 1, "cor": "red", "capacidade": 12, "tamanho": 4, "direcao": "Up", "coluna": 1, "linha": 2},
-        {"id": 2, "cor": "blue", "capacidade": 8, "tamanho": 3, "direcao": "Left", "coluna": 3, "linha": 1},
-        {"id": 3, "cor": "green", "capacidade": 8, "tamanho": 3, "direcao": "Right", "coluna": 4, "linha": 7},
-        {"id": 4, "cor": "purple", "capacidade": 6, "tamanho": 2, "direcao": "Down", "coluna": 7, "linha": 2},
-        {"id": 5, "cor": "orange", "capacidade": 12, "tamanho": 4, "direcao": "Left", "coluna": 3, "linha": 5},
-        {"id": 6, "cor": "red", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 4, "linha": 3},
-        {"id": 7, "cor": "green", "capacidade": 4, "tamanho": 2, "direcao": "Up", "coluna": 3, "linha": 3}
+        { "id": 1, "cor": "red", "capacidade": 12, "tamanho": 6, "direcao": "Down", "coluna": 0, "linha": 0 },
+        { "id": 2, "cor": "blue", "capacidade": 8, "tamanho": 4, "direcao": "Right", "coluna": 1, "linha": 0 },
+        { "id": 3, "cor": "green", "capacidade": 12, "tamanho": 6, "direcao": "Down", "coluna": 7, "linha": 0 },
+        { "id": 4, "cor": "orange", "capacidade": 12, "tamanho": 6, "direcao": "Right", "coluna": 1, "linha": 7 },
+        { "id": 5, "cor": "purple", "capacidade": 6, "tamanho": 3, "direcao": "Down", "coluna": 5, "linha": 1 },
+        { "id": 6, "cor": "red", "capacidade": 4, "tamanho": 2, "direcao": "Right", "coluna": 3, "linha": 3 },
+        { "id": 7, "cor": "green", "capacidade": 4, "tamanho": 2, "direcao": "Down", "coluna": 2, "linha": 2 }
       ]
     }
   ]
